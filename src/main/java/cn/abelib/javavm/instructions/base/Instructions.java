@@ -512,38 +512,38 @@ public class Instructions {
                 return new TableSwitch();
             case 0xab:
                 return new LookupSwitch();
-            // case 0xac:
-            // 	return ireturn
-            // case 0xad:
-            // 	return lreturn
-            // case 0xae:
-            // 	return freturn
-            // case 0xaf:
-            // 	return dreturn
-            // case 0xb0:
-            // 	return areturn
-            // case 0xb1:
-            // 	return _return
+             case 0xac:
+             	return new IntegerReturn();
+             case 0xad:
+             	return new LongReturn();
+             case 0xae:
+             	return new FloatReturn();
+             case 0xaf:
+             	return new DoubleReturn();
+             case 0xb0:
+             	return new RefReturn();
+             case 0xb1:
+             	return new Return();
             case 0xb2:
                 return new GetStatic();
-             case 0xb3:
+            case 0xb3:
              	return new PutStatic();
              case 0xb4:
              	return new GetField();
              case 0xb5:
              	return new PutField();
-            	case 0xb6:
+            case 0xb6:
             		return new InvokeVirtual();
              case 0xb7:
              	return new InvokeSpecial();
-            // case 0xb8:
-            // 	return new INVOKE_STATIC();
-            // case 0xb9:
-            // 	return new INVOKE_INTERFACE();
+             case 0xb8:
+             	return new InvokeStatic();
+             case 0xb9:
+             	return new InvokeInterface();
             // case 0xba:
             // 	return new INVOKE_DYNAMIC();
-            // case 0xbb:
-            // 	return new NEW();
+             case 0xbb:
+             	return new New();
             // case 0xbc:
             // 	return new NEW_ARRAY();
             // case 0xbd:

@@ -16,9 +16,10 @@ import java.util.Objects;
  */
 public class ClassLoader {
     private Classpath classpath;
+    private boolean verboseClassFlag;
     private Map<String, Clazz> clazzMap;
 
-    public ClassLoader(Classpath cp) {
+    public ClassLoader(Classpath cp, boolean verboseClassFlag) {
         this.classpath = cp;
         this.clazzMap = Maps.newHashMap();
     }
@@ -41,7 +42,10 @@ public class ClassLoader {
         byte[] data = this.readClass(name);
         Clazz clazz = this.defineClass(data);
         link(clazz);
-        System.out.println(String.format("[Loaded class from %s]", name));
+        if (this.verboseClassFlag) {
+            System.out.printf("[Loaded class from %s]", name);
+        }
+
         return clazz;
     }
 
@@ -65,6 +69,7 @@ public class ClassLoader {
      * @param clazz
      */
     private void allocAndInitStaticVars(Clazz clazz) {
+
         clazz.setStaticVars(new LocalVars(clazz.getStaticSlotCount()));
 
         for(Field field : clazz.getFields()) {

@@ -14,7 +14,7 @@ public class InstructionTest {
     public void startJVMTest() throws IOException {
         Command command = new Command();
         command.setXJreOption("D:\\dev\\jdk\\jre");
-        command.setCpOption("D:\\project\\java\\fresh-melon\\datas");
+        command.setCpOption("D:\\project\\java\\Javavm\\datas");
         command.setClazz("GaussTest");
         Bootstrap.startJVM(command);
     }

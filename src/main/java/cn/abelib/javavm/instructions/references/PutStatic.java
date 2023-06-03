@@ -33,7 +33,7 @@ public class PutStatic extends Index16Instruction {
         if (!field.isStatic()) {
             throw new RuntimeException("java.lang.IncompatibleClassChangeError");
         }
-        if (!field.isFinal()) {
+        if (field.isFinal()) {
             if (currentClass != clazz || !"<clinit>".equals(currentMethod.getName())) {
                 throw new RuntimeException("java.lang.IllegalAccessError");
             }

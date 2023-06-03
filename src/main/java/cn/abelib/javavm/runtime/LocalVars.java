@@ -15,6 +15,9 @@ public class LocalVars {
     public LocalVars(int maxLocals) {
         if (maxLocals > 0) {
             localVars = new Slot[maxLocals];
+            for (int i = 0; i < maxLocals; i ++) {
+                localVars[i] = new Slot();
+            }
         }
     }
 
@@ -61,6 +64,14 @@ public class LocalVars {
 
     public void setRef(int index, JvmObject val) {
         this.localVars[index] = new Slot(val);
+    }
+
+    public Slot getSlot(int index) {
+        return this.localVars[index];
+    }
+
+    public void setSlot(int index, Slot val) {
+        this.localVars[index] = val;
     }
 
     public JvmObject getRef(int index) {

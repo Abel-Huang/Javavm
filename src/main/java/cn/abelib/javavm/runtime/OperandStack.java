@@ -27,7 +27,9 @@ public class OperandStack {
 
     public int popInt() {
         this.size--;
-        return this.slots[this.size].getNum();
+        int val = this.slots[this.size].getNum();
+        this.slots[this.size] = null;
+        return val;
     }
 
     public void pushFloat(float val) {
@@ -78,10 +80,11 @@ public class OperandStack {
     }
 
     public JvmObject popRef() {
+        this.size--;
+        Slot slot = this.slots[this.size];
         // help gc
         this.slots[this.size] = null;
-        this.size--;
-        return this.slots[this.size].getRef();
+        return slot.getRef();
     }
 
     public void pushSlot(Slot slot) {
@@ -93,6 +96,10 @@ public class OperandStack {
         this.slots[this.size] = null;
         this.size--;
         return this.slots[this.size];
+    }
+
+    public JvmObject getRefFromTop(int n) {
+        return this.slots[this.size - 1 - n].getRef();
     }
 
     @Override

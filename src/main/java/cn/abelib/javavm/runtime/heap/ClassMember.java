@@ -37,15 +37,15 @@ public class ClassMember {
     }
 
     public boolean isPublic() {
-        return 0 != (this.accessFlags & Const.ACC_PUBLIC);
+        return 0 != (this.accessFlags & AccessFlags.ACC_PUBLIC);
     }
 
     public boolean isPrivate() {
-        return 0 != (this.accessFlags & Const.ACC_PRIVATE);
+        return 0 != (this.accessFlags & AccessFlags.ACC_PRIVATE);
     }
 
     public boolean isProtected() {
-        return 0 != (this.accessFlags & Const.ACC_PROTECTED);
+        return 0 != (this.accessFlags & AccessFlags.ACC_PROTECTED);
     }
 
     public boolean isAccessibleTo(Clazz d) {

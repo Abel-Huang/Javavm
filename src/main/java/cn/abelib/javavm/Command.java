@@ -17,6 +17,10 @@ public class Command {
 
     private boolean versionFlag;
 
+    private boolean verboseClassFlag;
+
+    private boolean verboseInstFlag;
+
     private String cpOption;
 
     private String xJreOption;
@@ -30,6 +34,9 @@ public class Command {
         final Options options = new Options();
         options.addOption("?","help", false, "print help message");
         options.addOption("version", false, "print the version information and exit");
+        options.addOption("verbose", false, "enable verbose output");
+        options.addOption("verbose:class", false, "enable verbose output");
+        options.addOption("verbose:inst", false, "enable verbose output");
         options.addOption("cp", "classpath", true, "classpath");
         options.addOption("t", false, "display current time");
         options.addOption("Xjre", "Xjre", true, "path to jre");
@@ -50,6 +57,12 @@ public class Command {
                 formatter.printHelp("?", options, true);
             } else if (line.hasOption("version")) {
                 System.err.println("version 0.0.1");
+            } else if (line.hasOption("verbose")) {
+                command.setVerboseClassFlag(true);
+            } else if (line.hasOption("verbose:class")) {
+                command.setVerboseClassFlag(true);
+            } else if (line.hasOption("verbose:inst")) {
+                command.setVerboseInstFlag(true);
             }
         } catch (ParseException e) {
             formatter.printHelp("?", options, true);
@@ -71,6 +84,22 @@ public class Command {
 
     public void setVersionFlag(boolean versionFlag) {
         this.versionFlag = versionFlag;
+    }
+
+    public boolean isVerboseClassFlag() {
+        return verboseClassFlag;
+    }
+
+    public void setVerboseClassFlag(boolean verboseClassFlag) {
+        this.verboseClassFlag = verboseClassFlag;
+    }
+
+    public boolean isVerboseInstFlag() {
+        return verboseInstFlag;
+    }
+
+    public void setVerboseInstFlag(boolean verboseInstFlag) {
+        this.verboseInstFlag = verboseInstFlag;
     }
 
     public String getCpOption() {

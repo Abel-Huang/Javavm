@@ -66,43 +66,43 @@ public class Clazz {
     }
 
     public boolean isPublic() {
-        return 0 != (this.accessFlags & Const.ACC_PUBLIC);
+        return 0 != (this.accessFlags & AccessFlags.ACC_PUBLIC);
     }
 
     public boolean isPrivate() {
-        return 0 != (this.accessFlags & Const.ACC_PRIVATE);
+        return 0 != (this.accessFlags & AccessFlags.ACC_PRIVATE);
     }
 
     public boolean isProtected() {
-        return 0 != (this.accessFlags & Const.ACC_PROTECTED);
+        return 0 != (this.accessFlags & AccessFlags.ACC_PROTECTED);
     }
 
     public boolean isStatic() {
-        return 0 != (this.accessFlags & Const.ACC_STATIC);
+        return 0 != (this.accessFlags & AccessFlags.ACC_STATIC);
     }
 
     public boolean isFinal() {
-        return 0 != (this.accessFlags & Const.ACC_FINAL);
+        return 0 != (this.accessFlags & AccessFlags.ACC_FINAL);
     }
 
     public boolean isSuper() {
-        return 0 != (this.accessFlags & Const.ACC_SUPER);
+        return 0 != (this.accessFlags & AccessFlags.ACC_SUPER);
     }
 
     public boolean isSynchronized() {
-        return 0 != (this.accessFlags & Const.ACC_SYNCHRONIZED);
+        return 0 != (this.accessFlags & AccessFlags.ACC_SYNCHRONIZED);
     }
 
     public boolean isVolatile() {
-        return 0 != (this.accessFlags & Const.ACC_VOLATILE);
+        return 0 != (this.accessFlags & AccessFlags.ACC_VOLATILE);
     }
 
     public boolean isInterface() {
-        return 0 != (this.accessFlags & Const.ACC_INTERFACE);
+        return 0 != (this.accessFlags & AccessFlags.ACC_INTERFACE);
     }
 
     public boolean isAbstract() {
-        return 0 != (this.accessFlags & Const.ACC_ABSTRACT);
+        return 0 != (this.accessFlags & AccessFlags.ACC_ABSTRACT);
     }
 
     public ClassLoader getClassLoader() {

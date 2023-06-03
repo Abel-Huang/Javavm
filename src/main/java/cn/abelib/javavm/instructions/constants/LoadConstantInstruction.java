@@ -17,12 +17,16 @@ public interface LoadConstantInstruction {
         RuntimeConstantPoolInfo poolInfo = cp.getConstant(index);
         if (poolInfo.isSetIntValue()) {
             stack.pushInt(poolInfo.getIntValue());
+            return;
         } else if (poolInfo.isSetFloatValue()) {
             stack.pushFloat(poolInfo.getFloatValue());
+            return;
         } else if (poolInfo.isSetStringValue()) {
             // todo
+            return;
         } else if (poolInfo.isSetClassRef()) {
             // todo
+            return;
         }
         throw new RuntimeException("todo: ldc!");
     }
