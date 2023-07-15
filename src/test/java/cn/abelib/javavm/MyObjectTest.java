@@ -17,6 +17,8 @@ public class MyObjectTest {
         command.setXJreOption("D:\\dev\\jdk\\jre");
         command.setCpOption("D:\\project\\java\\Javavm\\datas");
         command.setClazz("MyObject");
+        command.setVerboseInstFlag(true);
+        command.setVerboseClassFlag(true);
         Bootstrap.startJVM(command);
     }
 }

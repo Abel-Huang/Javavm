@@ -2,7 +2,6 @@ package cn.abelib.javavm;
 
 import cn.abelib.javavm.clazz.ClassFile;
 import cn.abelib.javavm.clazz.MemberInfo;
-import cn.abelib.javavm.instructions.base.Interpreter;
 import cn.abelib.javavm.runtime.heap.Clazz;
 import cn.abelib.javavm.runtime.heap.Method;
 import cn.abelib.javavm.runtime.heap.ClassLoader;

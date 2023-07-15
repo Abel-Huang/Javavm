@@ -53,14 +53,14 @@ public class Instructions {
     private static RefLoad1 ALOAD_1 = new RefLoad1();
     private static RefLoad2 ALOAD_2 = new RefLoad2();
     private static RefLoad3 ALOAD_3 = new RefLoad3();
-    //private static iaload = new IALOAD();
-    //private static laload = new LALOAD();
-    //private static faload = new FALOAD();
-    //private static daload = new DALOAD();
-    //private static aaload = new AALOAD();
-    //private static baload = new BALOAD();
-    //private static caload = new CALOAD();
-    //private static saload = new SALOAD();
+    private static IntegerArrayLoad IALOAD = new IntegerArrayLoad();
+    private static LongArrayLoad LALOAD = new LongArrayLoad();
+    private static FloatArrayLoad FALOAD = new FloatArrayLoad();
+    private static DoubleArrayLoad DALOAD = new DoubleArrayLoad();
+    private static RefArrayLoad AALOAD = new RefArrayLoad();
+    private static ByteArrayLoad BALOAD = new ByteArrayLoad();
+    private static CharArrayLoad CALOAD = new CharArrayLoad();
+    private static ShortArrayLoad SALOAD = new ShortArrayLoad();
     private static IntegerStore0 ISTORE_0 = new IntegerStore0();
     private static IntegerStore1 ISTORE_1 = new IntegerStore1();
     private static IntegerStore2 ISTORE_2 = new IntegerStore2();
@@ -81,14 +81,14 @@ public class Instructions {
     private static RefStore1 ASTORE_1 = new RefStore1();
     private static RefStore2 ASTORE_2 = new RefStore2();
     private static RefStore3 ASTORE_3 = new RefStore3();
-    //private static iastore = new IASTORE();
-    //private static lastore = new LASTORE();
-    //private static fastore = new FASTORE();
-    //private static dastore = new DASTORE();
-    //private static aastore = new AASTORE();
-    //private static bastore = new BASTORE();
-    //private static castore = new CASTORE();
-    //private static sastore = new SASTORE();
+    private static IntegerArrayStore IASTORE = new IntegerArrayStore();
+    private static LongArrayStore LASTORE = new LongArrayStore();
+    private static FloatArrayStore FASTORE = new FloatArrayStore();
+    private static DoubleArrayStore DASTORE = new DoubleArrayStore();
+    private static RefArrayStore AASTORE = new RefArrayStore();
+    private static ByteArrayStore BASTORE = new ByteArrayStore();
+    private static CharArrayStore CASTORE = new CharArrayStore();
+    private static ShortArrayStore SASTORE = new ShortArrayStore();
     private static Pop POP = new Pop();
     private static Pop2 POP2 = new Pop2();
     private static Duplicate DUP = new Duplicate();
@@ -154,13 +154,13 @@ public class Instructions {
     private static FloatCompareGreat FCMPG = new FloatCompareGreat();
     private static DoubleCompareLow DCMPL = new DoubleCompareLow();
     private static DoubleCompareGreat DCMPG = new DoubleCompareGreat();
-    //private static ireturn = new IRETURN();
-    //private static lreturn = new LRETURN();
-    //private static freturn = new FRETURN();
-    //private static dreturn = new DRETURN();
-    //private static areturn = new ARETURN();
-    //private static _return = new RETURN();
-    //private static arraylength = new ARRAY_LENGTH();
+    private static IntegerReturn IRETURN = new IntegerReturn();
+    private static LongReturn LRETURN = new LongReturn();
+    private static FloatReturn FRETURN = new FloatReturn();
+    private static DoubleReturn DRETURN = new DoubleReturn();
+    private static RefReturn ARETURN = new RefReturn();
+    private static Return RETURN = new Return();
+    private static ArrayLength ARRAY_LENGTH = new ArrayLength();
     //private static athrow = new ATHROW();
     //private static monitorenter = new MONITOR_ENTER();
     //private static monitorexit = new MONITOR_EXIT();
@@ -260,22 +260,22 @@ public class Instructions {
                 return ALOAD_2;
             case 0x2d:
                 return ALOAD_3;
-            // case 0x2e:
-            // 	return iaload
-            // case 0x2f:
-            // 	return laload
-            // case 0x30:
-            // 	return faload
-            // case 0x31:
-            // 	return daload
-            // case 0x32:
-            // 	return aaload
-            // case 0x33:
-            // 	return baload
-            // case 0x34:
-            // 	return caload
-            // case 0x35:
-            // 	return saload
+             case 0x2e:
+             	return IALOAD;
+             case 0x2f:
+             	return LALOAD;
+             case 0x30:
+             	return FALOAD;
+             case 0x31:
+             	return DALOAD;
+             case 0x32:
+             	return AALOAD;
+             case 0x33:
+             	return BALOAD;
+             case 0x34:
+             	return CALOAD;
+             case 0x35:
+             	return SALOAD;
             case 0x36:
                 return new IntegerStore();
             case 0x37:
@@ -326,22 +326,22 @@ public class Instructions {
                 return ASTORE_2;
             case 0x4e:
                 return ASTORE_3;
-            // case 0x4f:
-            // 	return iastore
-            // case 0x50:
-            // 	return lastore
-            // case 0x51:
-            // 	return fastore
-            // case 0x52:
-            // 	return dastore
-            // case 0x53:
-            // 	return aastore
-            // case 0x54:
-            // 	return bastore
-            // case 0x55:
-            // 	return castore
-            // case 0x56:
-            // 	return sastore
+             case 0x4f:
+             	return IASTORE;
+             case 0x50:
+             	return LASTORE;
+             case 0x51:
+             	return FASTORE;
+             case 0x52:
+             	return DASTORE;
+             case 0x53:
+             	return AASTORE;
+             case 0x54:
+             	return BASTORE;
+             case 0x55:
+             	return CASTORE;
+             case 0x56:
+             	return SASTORE;
             case 0x57:
                 return POP;
             case 0x58:
@@ -513,17 +513,17 @@ public class Instructions {
             case 0xab:
                 return new LookupSwitch();
              case 0xac:
-             	return new IntegerReturn();
+             	return IRETURN;
              case 0xad:
-             	return new LongReturn();
+             	return LRETURN;
              case 0xae:
-             	return new FloatReturn();
+             	return FRETURN;
              case 0xaf:
-             	return new DoubleReturn();
+             	return DRETURN;
              case 0xb0:
-             	return new RefReturn();
+             	return ARETURN;
              case 0xb1:
-             	return new Return();
+             	return RETURN;
             case 0xb2:
                 return new GetStatic();
             case 0xb3:
@@ -544,12 +544,12 @@ public class Instructions {
             // 	return new INVOKE_DYNAMIC();
              case 0xbb:
              	return new New();
-            // case 0xbc:
-            // 	return new NEW_ARRAY();
-            // case 0xbd:
-            // 	return new ANEW_ARRAY();
-            // case 0xbe:
-            // 	return arraylength
+             case 0xbc:
+             	return new NewArray();
+             case 0xbd:
+             	return new RefNewArray();
+             case 0xbe:
+             	return ARRAY_LENGTH;
             // case 0xbf:
             // 	return athrow
             // case 0xc0:

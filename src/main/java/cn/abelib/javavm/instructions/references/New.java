@@ -1,6 +1,5 @@
 package cn.abelib.javavm.instructions.references;
 
-import cn.abelib.javavm.clazz.constantinfo.ConstantPool;
 import cn.abelib.javavm.instructions.base.Index16Instruction;
 import cn.abelib.javavm.runtime.Frame;
 import cn.abelib.javavm.runtime.heap.ClassRef;

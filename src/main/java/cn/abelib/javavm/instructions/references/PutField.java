@@ -56,28 +56,28 @@ public class PutField extends Index16Instruction {
                 if (Objects.isNull(ref)) {
                     throw new RuntimeException("java.lang.NullPointerException");
                 }
-                ref.getFields().setInt(slotId, intVal);
+                ref.getData().setInt(slotId, intVal);
             case 'F':
                 float floatVal = stack.popFloat();
                 ref = stack.popRef();
                 if (Objects.isNull(ref)) {
                     throw new RuntimeException("java.lang.NullPointerException");
                 }
-                ref.getFields().setFloat(slotId, floatVal);
+                ref.getData().setFloat(slotId, floatVal);
             case 'J':
                 long longVal = stack.popLong();
                 ref = stack.popRef();
                 if (Objects.isNull(ref)) {
                     throw new RuntimeException("java.lang.NullPointerException");
                 }
-                ref.getFields().setLong(slotId, longVal);
+                ref.getData().setLong(slotId, longVal);
             case 'D':
                 double doubleVal = stack.popDouble();
                 ref = stack.popRef();
                 if (Objects.isNull(ref)) {
                     throw new RuntimeException("java.lang.NullPointerException");
                 }
-                ref.getFields().setDouble(slotId, doubleVal);
+                ref.getData().setDouble(slotId, doubleVal);
             case 'L':
             case '[':
                 JvmObject refVal = stack.popRef();
@@ -85,7 +85,7 @@ public class PutField extends Index16Instruction {
                 if (Objects.isNull(ref)) {
                     throw new RuntimeException("java.lang.NullPointerException");
                 }
-                ref.getFields().setRef(slotId, refVal);
+                ref.getData().setRef(slotId, refVal);
             default:
                 // todo
         }

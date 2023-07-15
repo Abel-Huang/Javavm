@@ -1,2 +1,2 @@
 # Javavm
-Toy jvm wirtten by Java
+Toy jvm written by Java

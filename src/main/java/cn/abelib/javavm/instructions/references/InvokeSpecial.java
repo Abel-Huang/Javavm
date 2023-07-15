@@ -40,12 +40,11 @@ public class InvokeSpecial extends Index16Instruction implements MethodInvokeIns
         if (resolvedMethod.isStatic()) {
             throw new RuntimeException("java.lang.IncompatibleClassChangeError");
         }
-
-        JvmObject ref = frame.getOperandStack().getRefFromTop(resolvedMethod.getArgSlotCount() - 1);
+        // todo npe
+        JvmObject ref = frame.getOperandStack().getRefFromTop(resolvedMethod.getArgSlotCount());
         if (ref == null) {
             throw new RuntimeException("java.lang.NullPointerException");
         }
-        frame.getOperandStack().popRef();
 
         if (resolvedMethod.isProtected() &&
                 resolvedMethod.getClazz().isSubClassOf(currentClass) &&

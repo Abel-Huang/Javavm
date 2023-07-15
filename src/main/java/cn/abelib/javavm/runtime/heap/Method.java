@@ -108,4 +108,12 @@ public class Method extends ClassMember {
     public byte[] getCode() {
         return code;
     }
+
+    @Override
+    public String toString() {
+        return "Method{" +
+                "name='" + name + '\'' +
+                ", descriptor='" + descriptor + '\'' +
+                '}';
+    }
 }

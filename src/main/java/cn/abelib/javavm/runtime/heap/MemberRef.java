@@ -2,6 +2,7 @@ package cn.abelib.javavm.runtime.heap;
 
 import cn.abelib.javavm.clazz.constantinfo.ConstantMemberRefInfo;
 import cn.abelib.javavm.clazz.constantinfo.NameAndType;
+import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.Objects;
 
@@ -23,6 +24,9 @@ public class MemberRef extends SymRef {
     }
 
     protected Method lookupMethodInInterfaces(Clazz[] interfaces, String name, String descriptor) {
+        if (ArrayUtils.isEmpty(interfaces)) {
+            return null;
+        }
         for (Clazz iface : interfaces) {
             for(Method method : iface.getMethods()) {
                 if (method.name.equals(name) && method.descriptor.equals(descriptor)) {

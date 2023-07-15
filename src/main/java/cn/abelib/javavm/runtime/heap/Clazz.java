@@ -4,6 +4,10 @@ import cn.abelib.javavm.clazz.ClassFile;
 import cn.abelib.javavm.clazz.MemberInfo;
 import cn.abelib.javavm.clazz.constantinfo.ConstantPool;
 import cn.abelib.javavm.runtime.LocalVars;
+import com.google.common.collect.Maps;
+
+import java.io.IOException;
+import java.util.Map;
 
 /**
  * @author abel.huang
@@ -30,6 +34,7 @@ public class Clazz {
     private int instanceSlotCount;
     private int staticSlotCount;
     private LocalVars staticVars;
+    private boolean initStarted;
 
     public Clazz(ClassFile classfile) {
         this.accessFlags = classfile.getAccessFlags();
@@ -39,6 +44,42 @@ public class Clazz {
         this.constantPool = new RuntimeConstantPool(this, classfile.getConstantPool());
         this.fields = newFields(this, classfile.getFields());
         this.methods = newMethods(this, classfile.getMethods());
+    }
+
+    public Clazz() {}
+
+    public JvmObject newArray(int count) {
+        if (!this.isArray()) {
+            throw new RuntimeException("Not array class: " + this.name);
+        }
+        switch (this.getName()) {
+            case "[Z":
+                return new JvmObject(this, count);
+            case "[B":
+                return new JvmObject(this,count);
+            case "[C":
+                return new JvmObject(this, count);
+            case "[S":
+                return new JvmObject(this, count);
+            case "[I":
+                return new JvmObject(this, count);
+            case "[J":
+                return new JvmObject(this, count);
+            case "[F":
+                return new JvmObject(this, count);
+            case "[D":
+                return new JvmObject(this, count);
+            default:
+                return new JvmObject(this, count);
+        }
+    }
+
+    /**
+     * is array class
+     * @return
+     */
+    public boolean isArray() {
+        return this.getName().charAt(0) == '[';
     }
 
     private Method[] newMethods(Clazz clazz, MemberInfo[] memberInfos) {
@@ -103,6 +144,18 @@ public class Clazz {
 
     public boolean isAbstract() {
         return 0 != (this.accessFlags & AccessFlags.ACC_ABSTRACT);
+    }
+
+    public boolean isJlObject() {
+        return "java/lang/Object".equals(this.name);
+    }
+
+    public boolean isJlCloneable() {
+        return "java/lang/Cloneable".equals(this.name);
+    }
+
+    public boolean isJioSerializable() {
+        return "java/io/Serializable".equals(this.name);
     }
 
     public ClassLoader getClassLoader() {
@@ -209,6 +262,14 @@ public class Clazz {
         this.constantPool = constantPool;
     }
 
+    public boolean isInitStarted() {
+        return initStarted;
+    }
+
+    public void setInitStarted(boolean initStarted) {
+        this.initStarted = initStarted;
+    }
+
     public String getPackageName() {
         // todo code fix
         int i = this.name.lastIndexOf( "/");
@@ -226,7 +287,11 @@ public class Clazz {
         return new JvmObject(this);
     }
 
-    // self extends c
+    /**
+     * this extends c
+     * @param other
+     * @return
+     */
     public boolean isSubClassOf(Clazz other) {
         for (Clazz c = this.superClass; c != null; c = c.superClass) {
             // todo equal fix
@@ -235,6 +300,24 @@ public class Clazz {
             }
         }
         return false;
+    }
+
+    /**
+     * c extends self
+     * @param other
+     * @return
+     */
+    public boolean isSuperClassOf(Clazz other) {
+        return other.isSubClassOf(other);
+    }
+
+    /**
+     * iface extends self
+     * @param iface
+     * @return
+     */
+    public boolean isSuperInterfaceOf(Clazz iface) {
+        return iface.isSubInterfaceOf(this);
     }
 
     public boolean isImplements(Clazz other) {
@@ -248,6 +331,10 @@ public class Clazz {
         return false;
     }
 
+    /**
+     * self extends iface
+     * @return
+     */
     private boolean isSubInterfaceOf(Clazz other) {
         for (Clazz superInterface : other.interfaces) {
             if (superInterface == other || superInterface.isSubInterfaceOf(other)) {
@@ -272,14 +359,108 @@ public class Clazz {
         return null;
     }
 
-    public boolean isAssignableFrom(Clazz clazz) {
-        if (this == clazz) {
+    public boolean isAssignableFrom(Clazz otherClazz) throws IOException {
+        if (this == otherClazz) {
             return true;
         }
-        if (!this.isInterface()) {
-            return clazz.isSubClassOf(this);
+        if (!otherClazz.isArray()) {
+            if (!otherClazz.isInterface()) {
+                if (!this.isInterface()) {
+                    return otherClazz.isSubClassOf(this);
+                } else {
+                    return otherClazz.isImplements(this);
+                }
+            } else {
+                if (!this.isInterface()) {
+                    return this.isJlObject();
+                } else {
+                    return this.isSuperInterfaceOf(otherClazz);
+                }
+            }
         } else {
-            return clazz.isImplements(this);
+            if (!this.isArray()) {
+                if (!this.isInterface()) {
+                    return this.isJlObject();
+                } else {
+                    return this.isJlCloneable() || this.isJioSerializable();
+                }
+            } else {
+                Clazz sc = otherClazz.getComponentClass();
+                Clazz tc = this.getComponentClass();
+                return sc == tc || tc.isAssignableFrom(sc);
+            }
         }
+    }
+
+    @Override
+    public String toString() {
+        return "Clazz{" +
+                "name='" + name + '\'' +
+                '}';
+    }
+
+    public Clazz arrayClass() throws IOException {
+        String arrayClassName = getArrayClassName(this.name);
+        return this.classLoader.loadClass(arrayClassName);
+    }
+
+    private String getArrayClassName(String name) {
+        return "[" + toDescriptor(name);
+    }
+
+    private String toDescriptor(String name) {
+        if (name.charAt(0) == '[') {
+            return name;
+        }
+        if (primitiveTypes.containsKey(name)) {
+            return primitiveTypes.get(name);
+        }
+        return "L" + name + ";";
+    }
+
+    private static Map<String, String> primitiveTypes = Maps.newHashMap();
+
+    static {
+        primitiveTypes.put("void", "V");
+        primitiveTypes.put("boolean", "Z");
+        primitiveTypes.put("byte", "B");
+        primitiveTypes.put("short", "S");
+        primitiveTypes.put("int", "I");
+        primitiveTypes.put("long", "J");
+        primitiveTypes.put("char", "C");
+        primitiveTypes.put("float", "F");
+        primitiveTypes.put("double", "D");
+    }
+
+    public Clazz getComponentClass() throws IOException {
+        String componentClassName = getComponentClassName(this.name);
+        return this.classLoader.loadClass(componentClassName);
+
+    }
+
+    private String getComponentClassName(String name) {
+        if (name.charAt(0) == '[') {
+            String componentTypeDescriptor = name.substring(1);
+            return toClassName(componentTypeDescriptor);
+        }
+        throw new RuntimeException("Not array: " + name);
+    }
+
+    private String toClassName(String descriptor) {
+        // array
+        if (descriptor.charAt(0) == '[') {
+            return descriptor;
+        }
+        // object
+        if (descriptor.charAt(0) == 'L') {
+            // todo 确认下取值范围
+            return descriptor.substring(1);
+        }
+        // primitive
+        for (Map.Entry<String, String> entry : primitiveTypes.entrySet()) {
+            if (entry.getValue().equals(descriptor))
+            return entry.getKey();
+        }
+        throw new RuntimeException("Invalid descriptor: " + descriptor);
     }
 }

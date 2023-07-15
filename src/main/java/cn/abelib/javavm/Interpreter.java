@@ -1,5 +1,8 @@
-package cn.abelib.javavm.instructions.base;
+package cn.abelib.javavm;
 
+import cn.abelib.javavm.instructions.base.BytecodeReader;
+import cn.abelib.javavm.instructions.base.Instruction;
+import cn.abelib.javavm.instructions.base.Instructions;
 import cn.abelib.javavm.runtime.Frame;
 import cn.abelib.javavm.runtime.JvmThread;
 import cn.abelib.javavm.runtime.OperandStack;
@@ -21,17 +24,15 @@ public class Interpreter {
             loop(thread, printLog);
         } catch (Exception e) {
             e.printStackTrace();
-            // todo System.out.printf
-            System.out.printf("LocalVars: %s", frame.getLocalVars());
-            System.out.printf("OperandStack: %s", frame.getOperandStack());
+            System.out.printf("LocalVars: %s%n", frame.getLocalVars());
+            System.out.printf("OperandStack: %s%n", frame.getOperandStack());
         }
     }
 
     private static void loop(JvmThread thread, boolean printLog) {
-
         BytecodeReader reader = new BytecodeReader();
-        while (true) {
-            Frame frame = thread.popFrame();
+        while (!thread.isStackEmpty()) {
+            Frame frame = thread.topFrame();
             int pc = frame.getNextPc();
             thread.setPc(pc);
             // decode
@@ -41,16 +42,12 @@ public class Interpreter {
             inst.fetchOperands(reader);
             frame.setNextPC(reader.getPc());
 
-            if (printLog) {
-                System.out.printf("pc:%2d inst:%s %s", pc, inst, frame.getLocalVars());
-                OperandStack stack = frame.getOperandStack();
-                System.out.printf("stack %s", stack.toString());
-            }
-
             // execute
             inst.execute(frame);
-            if (thread.isStackEmpty()) {
-                break;
+            if (printLog) {
+                System.out.printf("pc:%2d inst:%s %s%n", pc, inst, frame.getLocalVars());
+                OperandStack stack = frame.getOperandStack();
+                System.out.printf("stack %s%n", stack.toString());
             }
         }
     }

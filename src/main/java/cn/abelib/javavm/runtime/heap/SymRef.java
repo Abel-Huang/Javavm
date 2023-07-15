@@ -24,7 +24,7 @@ public class SymRef {
         Clazz clazz = this.constantPool.getClazz();
         Clazz c = clazz.getClassLoader().loadClass(this.className);
         if (!c.isAccessibleTo(clazz)){
-            throw  new RuntimeException("java.lang.IllegalAccessError");
+            throw new RuntimeException("java.lang.IllegalAccessError");
         }
         this.clazz = c;
     }

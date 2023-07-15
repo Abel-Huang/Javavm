@@ -29,7 +29,34 @@ public class ClassLoader {
             // 类已经加载
             return clazzMap.get(name);
         }
+        if (name.charAt(0) == '[') {
+            return this.loadArrayClass(name);
+        }
         return this.loadNonArrayClass(name);
+    }
+
+    /**
+     * load array class
+     * @param name
+     * @return
+     */
+    private Clazz loadArrayClass(String name) throws IOException {
+        Clazz clazz = new Clazz();
+        clazz.setAccessFlags(AccessFlags.ACC_PUBLIC);
+        clazz.setName(name);
+        clazz.setClassLoader(this);
+        Clazz superClass =  this.loadClass("java/lang/Object");
+        clazz.setSuperClass(superClass);
+        clazz.setSuperClassName(superClass.getName());
+        Clazz interfaceClass1 =  this.loadClass("java/lang/Cloneable");
+        Clazz interfaceClass2 =  this.loadClass("java/io/Serializable");
+        Clazz[] interfaces = new Clazz[]{interfaceClass1, interfaceClass2};
+        clazz.setInterfaces(interfaces);
+        String[] interfaceNames = new String[]{interfaceClass1.getName(), interfaceClass2.getName()};
+        clazz.setInterfaceNames(interfaceNames);
+        clazz.setInitStarted(true);
+        this.clazzMap.put(clazz.getName(), clazz);
+        return clazz;
     }
 
     /**

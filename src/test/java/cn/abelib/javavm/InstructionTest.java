@@ -16,6 +16,8 @@ public class InstructionTest {
         command.setXJreOption("D:\\dev\\jdk\\jre");
         command.setCpOption("D:\\project\\java\\Javavm\\datas");
         command.setClazz("GaussTest");
+        command.setVerboseInstFlag(true);
+        command.setVerboseClassFlag(true);
         Bootstrap.startJVM(command);
     }
 }

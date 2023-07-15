@@ -2,7 +2,7 @@ package cn.abelib.javavm.runtime;
 
 import cn.abelib.javavm.runtime.heap.JvmObject;
 
-import java.util.Arrays;
+import java.util.Stack;
 
 /**
  * @author abel.huang
@@ -11,53 +11,52 @@ import java.util.Arrays;
  */
 public class OperandStack {
     private int size;
-    private Slot[] slots;
+    private Stack<Slot> slots;
 
     public OperandStack(int maxStack) {
         if(maxStack > 0) {
-            slots = new Slot[maxStack];
+            slots = new Stack<>();
             size = 0;
         }
     }
 
     public void pushInt(int val) {
-        this.slots[this.size] = new Slot(val);
+        this.slots.push(new Slot(val));
         this.size++;
     }
 
     public int popInt() {
+        int val = this.slots.pop().getNum();
         this.size--;
-        int val = this.slots[this.size].getNum();
-        this.slots[this.size] = null;
         return val;
     }
 
     public void pushFloat(float val) {
         int intVal = Float.floatToIntBits(val);
-        this.slots[this.size] = new Slot(intVal);
+        this.slots.push(new Slot(intVal));
         this.size++;
     }
 
     public float popFloat() {
+        int intVal = this.slots.pop().getNum();
         this.size--;
-        int intVal = this.slots[this.size].getNum();
         return Float.intBitsToFloat(intVal);
     }
 
     public void pushLong(long val) {
         int lowVal = (int)(val & 0x000000FFFFFFFFL);
-        this.slots[size] = new Slot(lowVal);
+        this.slots.push(new Slot(lowVal));
         this.size++;
         int highVal = (int)(val >> 32);
-        this.slots[size] = new Slot(highVal);
+        this.slots.push(new Slot(highVal));
         this.size++;
     }
 
     public long popLong() {
+        long highVal = this.slots.pop().getNum();
         this.size--;
-        long highVal = this.slots[this.size].getNum();
+        long lowVal = this.slots.pop().getNum();
         this.size--;
-        long lowVal = this.slots[this.size].getNum();
         return (lowVal & 0x000000FFFFFFFFL) | ((highVal & 0x000000FFFFFFFFL) << 32);
     }
 
@@ -75,38 +74,35 @@ public class OperandStack {
     }
 
     public void pushRef(JvmObject val) {
-        this.slots[this.size] = new Slot(val);
+        this.slots.push(new Slot(val));
         this.size++;
     }
 
     public JvmObject popRef() {
+        Slot slot = this.slots.pop();
         this.size--;
-        Slot slot = this.slots[this.size];
-        // help gc
-        this.slots[this.size] = null;
         return slot.getRef();
     }
 
     public void pushSlot(Slot slot) {
-        this.slots[this.size] = slot;
+        this.slots.push(slot);
         this.size++;
     }
     public Slot popSlot()  {
-        // help gc
-        this.slots[this.size] = null;
+        Slot slot = this.slots.pop();
         this.size--;
-        return this.slots[this.size];
+        return slot;
     }
 
     public JvmObject getRefFromTop(int n) {
-        return this.slots[this.size - 1 - n].getRef();
+        return this.slots.get(this.size - 1 - n).getRef();
     }
 
     @Override
     public String toString() {
         return "OperandStack{" +
                 "size=" + size +
-                ", slots=" + Arrays.toString(slots) +
+                ", slots=" + slots +
                 '}';
     }
 }

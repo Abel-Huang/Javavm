@@ -32,7 +32,7 @@ public class MethodRef extends MemberRef{
             throw new RuntimeException("java.lang.IncompatibleClassChangeError");
         }
         Method method = lookupMethod(c, this.name, this.descriptor);
-        if (Objects.isNull(this.method)) {
+        if (Objects.isNull(method)) {
             throw new RuntimeException("java.lang.NoSuchMethodError");
         }
         if (!method.isAccessibleTo(d)) {
@@ -43,7 +43,7 @@ public class MethodRef extends MemberRef{
 
     private Method lookupMethod(Clazz c, String name, String descriptor) {
         Method method = lookupMethodInClass(c, name, descriptor);
-        if (Objects.isNull(this.method)) {
+        if (Objects.isNull(method)) {
             method = lookupMethodInInterfaces(c.getInterfaces(), name, descriptor);
         }
         return method;
