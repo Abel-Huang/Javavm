@@ -463,4 +463,17 @@ public class Clazz {
         }
         throw new RuntimeException("Invalid descriptor: " + descriptor);
     }
+
+    public Field getField(String name, String descriptor, boolean isStatic) {
+        for(Clazz c = this; c != null; c = c.superClass)  {
+            for (Field field : c.fields) {
+                if (field.isStatic() == isStatic &&
+                        field.name.equals(name) &&
+                        field.descriptor.equals(descriptor)) {
+                    return field;
+                }
+            }
+        }
+        return null;
+    }
 }

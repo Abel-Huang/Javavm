@@ -37,7 +37,7 @@ public class Bootstrap {
         printClassInfo(cf);
         Method mainMethod = clazz.getMainMethod();
         if(Objects.nonNull(mainMethod)) {
-            Interpreter.interpret(mainMethod, cmd.isVerboseInstFlag());
+            Interpreter.interpret(mainMethod, cmd.isVerboseInstFlag(), cmd.getArgs());
         } else {
             System.out.printf("Main method not found in class %s%n", cmd.getClazz());
         }

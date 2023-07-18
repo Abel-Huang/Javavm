@@ -2,8 +2,7 @@ package cn.abelib.javavm.instructions.constants;
 
 import cn.abelib.javavm.runtime.Frame;
 import cn.abelib.javavm.runtime.OperandStack;
-import cn.abelib.javavm.runtime.heap.RuntimeConstantPool;
-import cn.abelib.javavm.runtime.heap.RuntimeConstantPoolInfo;
+import cn.abelib.javavm.runtime.heap.*;
 
 /**
  * @author abel.huang
@@ -13,7 +12,8 @@ import cn.abelib.javavm.runtime.heap.RuntimeConstantPoolInfo;
 public interface LoadConstantInstruction {
     default void ldc(Frame frame, int index) {
         OperandStack stack = frame.getOperandStack();
-        RuntimeConstantPool cp = frame.getMethod().getClazz().getConstantPool();
+        Clazz clazz = frame.getMethod().getClazz();
+        RuntimeConstantPool cp = clazz.getConstantPool();
         RuntimeConstantPoolInfo poolInfo = cp.getConstant(index);
         if (poolInfo.isSetIntValue()) {
             stack.pushInt(poolInfo.getIntValue());
@@ -22,7 +22,9 @@ public interface LoadConstantInstruction {
             stack.pushFloat(poolInfo.getFloatValue());
             return;
         } else if (poolInfo.isSetStringValue()) {
-            // todo
+            // support string
+            JvmObject strRef = StringPool.getString(clazz.getClassLoader(), poolInfo.getStringValue());
+            stack.pushRef(strRef);
             return;
         } else if (poolInfo.isSetClassRef()) {
             // todo

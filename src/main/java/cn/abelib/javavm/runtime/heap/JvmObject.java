@@ -15,6 +15,9 @@ import java.util.List;
 public class JvmObject {
     private Clazz clazz;
     private LocalVars data;
+    /**
+     * todo 代码优化
+     */
     private List<Integer> ints;
     private List<Long> longs;
     private List<Float> floats;
@@ -138,5 +141,15 @@ public class JvmObject {
     public int getArrayLength() {
         assertArray();
         return this.size;
+    }
+
+    public void setRefVar(String name, String descriptor, JvmObject ref) {
+        Field field = this.clazz.getField(name, descriptor, false);
+        this.data.setRef(field.getSlotId(), ref);
+    }
+
+    public JvmObject getRefVar(String name, String descriptor) {
+        Field field =  this.clazz.getField(name, descriptor, false);
+        return this.data.getRef(field.getSlotId());
     }
 }

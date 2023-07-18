@@ -5,8 +5,6 @@ import cn.abelib.javavm.clazz.attributeinfo.AttributeInfo;
 import cn.abelib.javavm.clazz.attributeinfo.AttributeInfos;
 import cn.abelib.javavm.clazz.constantinfo.ConstantPool;
 
-import java.io.IOException;
-
 /**
  * @author abel.huang
  * @version 1.0
@@ -37,7 +35,7 @@ public class ClassFile {
 
     public ClassFile() {}
     
-    public void parse(byte[] data) throws IOException {
+    public void parse(byte[] data) {
         ClassReader cr = new ClassReader(data);
         this.read(cr);
     }

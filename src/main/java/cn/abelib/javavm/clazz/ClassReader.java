@@ -87,15 +87,6 @@ public class ClassReader {
     }
 
     /**
-     * todo
-     * uint64
-     * @return
-     */
-     public int readUInt64() {
-         return 0;
-     }
-
-    /**
      * @return
      */
     public long readLong() {

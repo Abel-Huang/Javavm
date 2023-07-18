@@ -120,18 +120,27 @@ public class ClassLoader {
                 case "I":
                    int intVal = constantPool.getConstant(cpIndex).getIntValue();
                    vars.setInt(slotId, intVal);
+                    break;
                 case "J":
                     long longVal = constantPool.getConstant(cpIndex).getLongValue();
                     vars.setLong(slotId, longVal);
+                    break;
                 case "F":
                     float floatVal = constantPool.getConstant(cpIndex).getFloatValue();
                     vars.setFloat(slotId, floatVal);
+                    break;
                 case "D":
                     double doubleVal = constantPool.getConstant(cpIndex).getDoubleValue();
                     vars.setDouble(slotId, doubleVal);
+                    break;
                 case "Ljava/lang/String;":
-                    // todo
-                    throw new RuntimeException("todo");
+                    // support string
+                    String str = constantPool.getConstant(cpIndex).getStringValue();
+                    if (Objects.isNull(str)) {
+                        break;
+                    }
+                    JvmObject jStr = StringPool.getString(clazz.getClassLoader(), str);
+                    vars.setRef(slotId, jStr);
             }
         }
     }

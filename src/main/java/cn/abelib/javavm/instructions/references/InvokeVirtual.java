@@ -77,6 +77,9 @@ public class InvokeVirtual extends Index16Instruction implements MethodInvokeIns
             case "(D)V":
                 System.err.printf("%f%n", stack.popDouble());
                 break;
+            case "(Ljava/lang/String;)V":
+                JvmObject jStr = stack.popRef();
+                System.err.println(StringPool.getString(jStr));
             default:
                 throw new RuntimeException("println: " + descriptor);
         }
