@@ -1,5 +1,6 @@
-package cn.abelib.javavm;
+package cn.abelib.javavm.bootstrap;
 
+import cn.abelib.javavm.Classpath;
 import org.junit.Test;
 
 import java.io.IOException;

@@ -1,21 +1,20 @@
-package cn.abelib.javavm.heap;
+package cn.abelib.javavm.arrays;
 
 import cn.abelib.javavm.runtime.heap.Clazz;
 import cn.abelib.javavm.runtime.heap.JvmObject;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 /**
  * @author abel.huang
  * @version 1.0
  * @date 2023/7/13 0:21
  */
-public class JvmObjectTest {
+public class ArrayObjectTest {
 
     /**
-     * TODO 测试
+     * fixme 测试
      */
     @Test
     public void testArrayObject() {

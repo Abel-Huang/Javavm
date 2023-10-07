@@ -19,9 +19,59 @@ public class ClassLoader {
     private boolean verboseClassFlag;
     private Map<String, Clazz> clazzMap;
 
+    /**
+     * todo 基础类型集合
+     */
+    private String[] primitiveTypes = {"int", "float", "long", "short",
+            "char", "double", "byte"};
+
     public ClassLoader(Classpath cp, boolean verboseClassFlag) {
         this.classpath = cp;
         this.clazzMap = Maps.newHashMap();
+        // todo 未使用
+        this.verboseClassFlag = verboseClassFlag;
+        this.loadBasicClasses();
+        this.loadPrimitiveClasses();
+    }
+
+    private void loadPrimitiveClasses() {
+        for (String primitiveType :  primitiveTypes) {
+            this.loadPrimitiveClass(primitiveType);
+        }
+    }
+
+    private void loadPrimitiveClass(String className) {
+        Clazz clazz = new Clazz();
+        clazz.setAccessFlags(AccessFlags.ACC_PUBLIC);
+        clazz.setName(className);
+        clazz.setClassLoader(this);
+        clazz.setInitStarted(true);
+
+        Clazz jlClassClass = clazzMap.get("java/lang/Class");
+        JvmObject jClass = jlClassClass.newObject();
+        jClass.setExtra(clazz);
+        clazz.setJClass(jClass);
+        this.clazzMap.put(className, clazz);
+    }
+
+    /**
+     * load class‘s class
+     */
+    private void loadBasicClasses() {
+        Clazz jlClassClass;
+        try {
+            jlClassClass = this.loadClass("java/lang/Class");
+        } catch (IOException e) {
+            throw new RuntimeException("IOException");
+        }
+
+        for (Clazz clazz : this.clazzMap.values()) {
+            if(clazz.getJClass() == null) {
+                JvmObject jClass = jlClassClass.newObject();
+                jClass.setExtra(clazz);
+                clazz.setJClass(jClass);
+            }
+        }
     }
 
     public Clazz loadClass(String name) throws IOException {
@@ -29,10 +79,19 @@ public class ClassLoader {
             // 类已经加载
             return clazzMap.get(name);
         }
+        Clazz clazz;
         if (name.charAt(0) == '[') {
-            return this.loadArrayClass(name);
+            clazz = this.loadArrayClass(name);
+        } else {
+            clazz = this.loadNonArrayClass(name);
         }
-        return this.loadNonArrayClass(name);
+        if (this.clazzMap.containsKey("java/lang/Class")) {
+            Clazz jlClassClass = clazzMap.get("java/lang/Class");
+            JvmObject jClass = jlClassClass.newObject();
+            jClass.setExtra(clazz);
+            clazz.setJClass(jClass);
+        }
+        return clazz;
     }
 
     /**

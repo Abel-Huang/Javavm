@@ -36,6 +36,14 @@ public class JvmStack {
         return this.stack.peek();
     }
 
+    public Frame[] getFrames() {
+        return (Frame[]) this.stack.toArray();
+    }
+
+    public void clear() {
+        this.stack.clear();
+    }
+
     public boolean isEmpty() {
         return this.stack.isEmpty();
     }

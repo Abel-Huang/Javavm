@@ -1,7 +1,9 @@
 package cn.abelib.javavm.instructions.references;
 
 import cn.abelib.javavm.instructions.base.Index16Instruction;
+import cn.abelib.javavm.instructions.base.InitClazz;
 import cn.abelib.javavm.runtime.Frame;
+import cn.abelib.javavm.runtime.heap.Clazz;
 import cn.abelib.javavm.runtime.heap.Method;
 import cn.abelib.javavm.runtime.heap.MethodRef;
 import cn.abelib.javavm.runtime.heap.RuntimeConstantPool;
@@ -29,6 +31,14 @@ public class InvokeStatic extends Index16Instruction implements MethodInvokeInst
         if (!resolvedMethod.isStatic()) {
             throw new RuntimeException("java.lang.IncompatibleClassChangeError");
         }
+
+        Clazz clazz = resolvedMethod.getClazz();
+        if (!clazz.isInitStarted()) {
+            frame.revertPc();
+            InitClazz.initClass(frame.getThread(), clazz);
+            return;
+        }
+
         invokeMethod(frame, resolvedMethod);
     }
 }

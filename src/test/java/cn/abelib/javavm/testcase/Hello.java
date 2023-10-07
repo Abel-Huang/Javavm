@@ -1,4 +1,4 @@
-package cn.abelib.javavm;
+package cn.abelib.javavm.testcase;
 
 /**
  * @author abel.huang

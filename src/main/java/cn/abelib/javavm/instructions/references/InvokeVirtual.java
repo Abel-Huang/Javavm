@@ -17,7 +17,7 @@ public class InvokeVirtual extends Index16Instruction implements MethodInvokeIns
     @Override
     public void execute(Frame frame) {
         Clazz currentClass = frame.getMethod().getClazz();
-        RuntimeConstantPool cp = frame.getMethod().getClazz().getConstantPool();
+        RuntimeConstantPool cp = currentClass.getConstantPool();
         MethodRef methodRef = cp.getConstant(this.index).getMethodRef();
 
         Method resolvedMethod;
@@ -32,7 +32,7 @@ public class InvokeVirtual extends Index16Instruction implements MethodInvokeIns
         }
         JvmObject ref = frame.getOperandStack().getRefFromTop(resolvedMethod.getArgSlotCount() - 1);
         if (ref == null) {
-            // hack!
+            // todo hack! delete println hack
             if (methodRef.getMethodName().equals("println")) {
                 _println(frame.getOperandStack(), methodRef.getDescriptor());
                 return;
@@ -80,6 +80,7 @@ public class InvokeVirtual extends Index16Instruction implements MethodInvokeIns
             case "(Ljava/lang/String;)V":
                 JvmObject jStr = stack.popRef();
                 System.err.println(StringPool.getString(jStr));
+                break;
             default:
                 throw new RuntimeException("println: " + descriptor);
         }

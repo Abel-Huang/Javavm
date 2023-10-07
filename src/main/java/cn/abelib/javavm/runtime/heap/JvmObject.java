@@ -3,8 +3,10 @@ package cn.abelib.javavm.runtime.heap;
 import cn.abelib.javavm.runtime.LocalVars;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.SerializationUtils;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -24,6 +26,10 @@ public class JvmObject {
     private List<Double> doubles;
     private List<JvmObject> refs;
     private int size;
+    /**
+     * extra todo
+     */
+    private Object extra;
 
     public JvmObject(Clazz clazz) {
         this.clazz = clazz;
@@ -151,5 +157,54 @@ public class JvmObject {
     public JvmObject getRefVar(String name, String descriptor) {
         Field field =  this.clazz.getField(name, descriptor, false);
         return this.data.getRef(field.getSlotId());
+    }
+
+    public Object getExtra() {
+        return extra;
+    }
+
+    public void setExtra(Object extra) {
+        this.extra = extra;
+    }
+
+    public JvmObject jvmClone() {
+        JvmObject clone = new JvmObject(this.clazz, this.getArrayLength());
+       
+        switch (this.clazz.getName()) {
+            // []int8
+            case "[Z":
+            // []int8
+            case "[B":
+            // []int16
+            case "[C":
+            // []int16
+            case "[S":
+            // []int32
+            case "[I":
+                clone.ints = SerializationUtils.deserialize(SerializationUtils
+                        .serialize((ArrayList)this.getInts()));
+            // []int64
+            case "[J":
+                clone.longs = SerializationUtils.deserialize(SerializationUtils
+                        .serialize((ArrayList)this.getLongs()));
+            // []float32
+            case "[F":
+                clone.floats = SerializationUtils.deserialize(SerializationUtils
+                        .serialize((ArrayList)this.getFloats()));
+            // []float64
+            case "[D":
+                clone.doubles = SerializationUtils.deserialize(SerializationUtils
+                        .serialize((ArrayList)this.getDoubles()));
+            // []Object
+            case "[":
+                clone.refs = SerializationUtils.deserialize(SerializationUtils
+                        .serialize((ArrayList)this.getRefs()));
+            // Object
+            default:
+                clone.data = new LocalVars(SerializationUtils.deserialize(SerializationUtils
+                        .serialize((ArrayList)this.data.getLocalVars())));
+        }
+
+        return clone;
     }
 }

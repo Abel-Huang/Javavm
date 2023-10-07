@@ -33,8 +33,8 @@ public class Interpreter {
             loop(thread, printLog);
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.printf("LocalVars: %s%n", frame.getLocalVars());
-            System.out.printf("OperandStack: %s%n", frame.getOperandStack());
+            System.err.printf("LocalVars: %s%n", frame.getLocalVars());
+            System.err.printf("OperandStack: %s%n", frame.getOperandStack());
         }
     }
 

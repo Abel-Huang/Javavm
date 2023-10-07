@@ -1,6 +1,7 @@
 package cn.abelib.javavm.instructions.references;
 
 import cn.abelib.javavm.instructions.base.Index16Instruction;
+import cn.abelib.javavm.instructions.base.InitClazz;
 import cn.abelib.javavm.runtime.Frame;
 import cn.abelib.javavm.runtime.heap.ClassRef;
 import cn.abelib.javavm.runtime.heap.Clazz;
@@ -27,6 +28,12 @@ public class New extends Index16Instruction {
             e.printStackTrace();
             throw new RuntimeException("java.lang.InstantiationError");
         }
+        if (!clazz.isInitStarted()) {
+            frame.revertPc();
+            InitClazz.initClass(frame.getThread(), clazz);
+            return;
+        }
+
         if (clazz.isInterface() || clazz.isAbstract()) {
             throw new RuntimeException("java.lang.InstantiationError");
         }

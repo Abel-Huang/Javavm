@@ -4,6 +4,8 @@ import cn.abelib.javavm.runtime.Frame;
 import cn.abelib.javavm.runtime.OperandStack;
 import cn.abelib.javavm.runtime.heap.*;
 
+import java.io.IOException;
+
 /**
  * @author abel.huang
  * @version 1.0
@@ -27,7 +29,15 @@ public interface LoadConstantInstruction {
             stack.pushRef(strRef);
             return;
         } else if (poolInfo.isSetClassRef()) {
-            // todo
+            ClassRef classRef = poolInfo.getClassRef();
+            JvmObject classObj;
+            try {
+                classObj = classRef.resolvedClass().getJClass();
+            } catch (IOException e) {
+                e.printStackTrace();
+                throw new RuntimeException("IOException");
+            }
+            stack.pushRef(classObj);
             return;
         }
         throw new RuntimeException("todo: ldc!");

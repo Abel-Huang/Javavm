@@ -33,9 +33,10 @@ public class Bootstrap {
         ClassLoader classLoader = new ClassLoader(classpath, cmd.isVerboseClassFlag());
         String className = cmd.getClazz().replace(".", "/");
         ClassFile cf = loadClass(className, classpath);
-        Clazz clazz = classLoader.loadClass(className);
+        Clazz mainClazz = classLoader.loadClass(className);
         printClassInfo(cf);
-        Method mainMethod = clazz.getMainMethod();
+        // class main method
+        Method mainMethod = mainClazz.getMainMethod();
         if(Objects.nonNull(mainMethod)) {
             Interpreter.interpret(mainMethod, cmd.isVerboseInstFlag(), cmd.getArgs());
         } else {

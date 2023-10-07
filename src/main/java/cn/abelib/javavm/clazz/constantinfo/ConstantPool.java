@@ -58,9 +58,9 @@ public class ConstantPool {
             case CONSTANT_NameAndType:
                 return new ConstantNameAndTypeInfo(cp);
             case CONSTANT_MethodType:
-                return new ConstantMethodTypeInfo(cp);
+                return new ConstantMethodTypeInfo();
             case CONSTANT_MethodHandle:
-                return new ConstantMethodHandleInfo(cp);
+                return new ConstantMethodHandleInfo();
             case CONSTANT_InvokeDynamic:
                 return new ConstantInvokeDynamicInfo();
             default:

@@ -3,6 +3,7 @@ package cn.abelib.javavm.clazz;
 import cn.abelib.javavm.Constants;
 import cn.abelib.javavm.clazz.attributeinfo.AttributeInfo;
 import cn.abelib.javavm.clazz.attributeinfo.AttributeInfos;
+import cn.abelib.javavm.clazz.attributeinfo.SourceFileAttribute;
 import cn.abelib.javavm.clazz.constantinfo.ConstantPool;
 
 /**
@@ -49,6 +50,7 @@ public class ClassFile {
         this.superClass = reader.readUInt16();
         this.interfaces = reader.readUInt16s();
         this.fields = readMembers(reader, this.constantPool);
+        // todo
         this.methods = readMembers(reader, this.constantPool);
         this.attributes = readAttributes(reader, this.constantPool);
     }
@@ -130,7 +132,7 @@ public class ClassFile {
         if (this.superClass > 0) {
             return this.constantPool.getClassName(this.superClass);
         }
-        // 只有java.lang.Object没有超类
+        // only java.lang.Object has no superclass
         return "";
     }
 
@@ -140,5 +142,18 @@ public class ClassFile {
             interfaceNames[i] = this.constantPool.getClassName(interfaces[i]);
         }
         return interfaceNames;
+    }
+
+    /**
+     * todo get SourceFileAttribute
+     * @return
+     */
+    public SourceFileAttribute getSourceFileAttribute() {
+        for (AttributeInfo attrInfo : this.attributes) {
+            if (attrInfo instanceof SourceFileAttribute){
+                return (SourceFileAttribute)attrInfo;
+            }
+        }
+        return null;
     }
 }

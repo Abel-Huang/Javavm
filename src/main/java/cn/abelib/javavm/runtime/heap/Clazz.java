@@ -2,12 +2,14 @@ package cn.abelib.javavm.runtime.heap;
 
 import cn.abelib.javavm.clazz.ClassFile;
 import cn.abelib.javavm.clazz.MemberInfo;
+import cn.abelib.javavm.clazz.attributeinfo.SourceFileAttribute;
 import cn.abelib.javavm.clazz.constantinfo.ConstantPool;
 import cn.abelib.javavm.runtime.LocalVars;
 import com.google.common.collect.Maps;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author abel.huang
@@ -35,6 +37,14 @@ public class Clazz {
     private int staticSlotCount;
     private LocalVars staticVars;
     private boolean initStarted;
+    /**
+     * class source file
+     */
+    private String sourceFile;
+    /**
+     * support reflection
+     */
+    private JvmObject jClass;
 
     public Clazz(ClassFile classfile) {
         this.accessFlags = classfile.getAccessFlags();
@@ -44,6 +54,15 @@ public class Clazz {
         this.constantPool = new RuntimeConstantPool(this, classfile.getConstantPool());
         this.fields = newFields(this, classfile.getFields());
         this.methods = newMethods(this, classfile.getMethods());
+        this.sourceFile = getSourceFile(classfile);
+    }
+
+    private String getSourceFile(ClassFile classfile) {
+        SourceFileAttribute sfAttr = classfile.getSourceFileAttribute();
+        if (Objects.nonNull(sfAttr)) {
+            return sfAttr.getFileName();
+        }
+        return "Unknown";
     }
 
     public Clazz() {}
@@ -52,26 +71,7 @@ public class Clazz {
         if (!this.isArray()) {
             throw new RuntimeException("Not array class: " + this.name);
         }
-        switch (this.getName()) {
-            case "[Z":
-                return new JvmObject(this, count);
-            case "[B":
-                return new JvmObject(this,count);
-            case "[C":
-                return new JvmObject(this, count);
-            case "[S":
-                return new JvmObject(this, count);
-            case "[I":
-                return new JvmObject(this, count);
-            case "[J":
-                return new JvmObject(this, count);
-            case "[F":
-                return new JvmObject(this, count);
-            case "[D":
-                return new JvmObject(this, count);
-            default:
-                return new JvmObject(this, count);
-        }
+        return new JvmObject(this, count);
     }
 
     /**
@@ -94,7 +94,7 @@ public class Clazz {
 
     private Field[] newFields(Clazz clazz, MemberInfo[] memberInfos) {
         int len = memberInfos.length;
-        Field[] fields = new Field[len];
+        Field[] fields  = new Field[len];
         for(int i = 0; i < len; i ++) {
             MemberInfo memberInfo = memberInfos[i];
             fields[i] = new Field(clazz, memberInfo);
@@ -270,6 +270,14 @@ public class Clazz {
         this.initStarted = initStarted;
     }
 
+    public JvmObject getJClass() {
+        return jClass;
+    }
+
+    public void setJClass(JvmObject jClass) {
+        this.jClass = jClass;
+    }
+
     public String getPackageName() {
         // todo code fix
         int i = this.name.lastIndexOf( "/");
@@ -345,12 +353,16 @@ public class Clazz {
     }
 
     public Method getMainMethod() {
-        return this.getStaticMethod("main", "([Ljava/lang/String;)V");
+        return this.getMethod("main", "([Ljava/lang/String;)V", true);
     }
 
-    private Method getStaticMethod(String name, String descriptor) {
+    public Method getClInitMethod() {
+        return this.getMethod("<clinit>", "()V", true);
+    }
+
+    private Method getMethod(String name, String descriptor, boolean isStatic) {
         for (Method method : this.methods) {
-            if(method.isStatic()
+            if(method.isStatic() == isStatic
                     && method.getName().equals(name)
                     && method.getDescriptor().equals(descriptor)) {
                 return method;
@@ -475,5 +487,39 @@ public class Clazz {
             }
         }
         return null;
+    }
+
+    /**
+     * java.lang.Object -> java/lang/Object
+     * @return
+     */
+    public String getJvmName() {
+        return this.name.replaceAll("/", ".");
+    }
+
+    public boolean isPrimitive() {
+        return primitiveTypes.containsKey(this.getName());
+    }
+
+    public Method getInstanceMethod(String name, String descriptor) {
+        return this.getMethod(name, descriptor, false);
+    }
+
+    public Method getStaticMethod(String name, String descriptor) {
+        return this.getMethod(name, descriptor, true);
+    }
+
+    public JvmObject getRefVar(String fieldName, String fieldDescriptor) {
+        Field field = this.getField(fieldName, fieldDescriptor, true);
+        return this.staticVars.getRef(field.getSlotId());
+    }
+
+    public void setRefVar(String fieldName, String fieldDescriptor, JvmObject ref) {
+        Field field = this.getField(fieldName, fieldDescriptor, true);
+        this.staticVars.setRef(field.getSlotId(), ref);
+    }
+
+    public String getSourceFile() {
+        return this.sourceFile;
     }
 }

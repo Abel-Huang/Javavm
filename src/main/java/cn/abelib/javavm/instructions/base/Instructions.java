@@ -8,6 +8,7 @@ import cn.abelib.javavm.instructions.extended.*;
 import cn.abelib.javavm.instructions.loads.*;
 import cn.abelib.javavm.instructions.maths.*;
 import cn.abelib.javavm.instructions.references.*;
+import cn.abelib.javavm.instructions.reserved.InvokeNative;
 import cn.abelib.javavm.instructions.stacks.*;
 import cn.abelib.javavm.instructions.stores.*;
 
@@ -161,10 +162,10 @@ public class Instructions {
     private static RefReturn ARETURN = new RefReturn();
     private static Return RETURN = new Return();
     private static ArrayLength ARRAY_LENGTH = new ArrayLength();
-    //private static athrow = new ATHROW();
+    private static RefThrow ATHROW = new RefThrow();
     //private static monitorenter = new MONITOR_ENTER();
     //private static monitorexit = new MONITOR_EXIT();
-    //private static invoke_native = new INVOKE_NATIVE();
+    private static InvokeNative INVOKE_NATIVE = new InvokeNative();
 
     public static Instruction newInstruction(int opcode) {
         switch (opcode)  {
@@ -550,8 +551,8 @@ public class Instructions {
              	return new RefNewArray();
              case 0xbe:
              	return ARRAY_LENGTH;
-            // case 0xbf:
-            // 	return athrow
+             case 0xbf:
+             	return ATHROW;
             // case 0xc0:
             // 	return new CHECK_CAST();
             // case 0xc1:
@@ -562,8 +563,8 @@ public class Instructions {
             // 	return monitorexit
             case 0xc4:
                 return new Wide();
-            // case 0xc5:
-            // 	return new MULTI_ANEW_ARRAY();
+             case 0xc5:
+             	return new MultiArrayNewArray();
             case 0xc6:
                 return new IfNull();
             case 0xc7:
@@ -573,7 +574,8 @@ public class Instructions {
             // case 0xc9:
             // 	return new JSR_W();
             // case 0xca: breakpoint
-            // case 0xfe: impdep1
+            case 0xfe:
+                return INVOKE_NATIVE;
             // case 0xff: impdep2
             default:
                 throw new RuntimeException(String.format("Unsupported opcode: 0x%x!", opcode));

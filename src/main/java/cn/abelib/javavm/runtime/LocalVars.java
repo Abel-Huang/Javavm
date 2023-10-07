@@ -22,6 +22,14 @@ public class LocalVars {
         }
     }
 
+    public LocalVars(List<Slot> localVars) {
+        this.localVars = localVars;
+    }
+
+    public List<Slot> getLocalVars() {
+        return localVars;
+    }
+
     public void setInt(int index, int val) {
         this.localVars.set(index, new Slot(val));
     }
@@ -77,6 +85,10 @@ public class LocalVars {
 
     public JvmObject getRef(int index) {
         return this.localVars.get(index).getRef();
+    }
+
+    public JvmObject getThis() {
+        return this.getRef(0);
     }
 
     @Override

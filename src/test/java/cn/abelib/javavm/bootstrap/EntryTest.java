@@ -1,4 +1,4 @@
-package cn.abelib.javavm;
+package cn.abelib.javavm.bootstrap;
 
 import cn.abelib.javavm.Entry;
 import cn.abelib.javavm.entry.DirEntry;

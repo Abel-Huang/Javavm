@@ -31,6 +31,17 @@ public class OperandStack {
         return val;
     }
 
+    public void pushBoolean(boolean val) {
+        this.slots.push(new Slot(val ? 1 : 0));
+        this.size++;
+    }
+
+    public boolean popBoolean() {
+        int val = this.slots.pop().getNum();
+        this.size--;
+        return val == 1;
+    }
+
     public void pushFloat(float val) {
         int intVal = Float.floatToIntBits(val);
         this.slots.push(new Slot(intVal));
@@ -104,5 +115,10 @@ public class OperandStack {
                 "size=" + size +
                 ", slots=" + slots +
                 '}';
+    }
+
+    public void clear() {
+        this.size = 0;
+        this.slots.clear();
     }
 }

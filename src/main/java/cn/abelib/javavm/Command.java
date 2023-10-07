@@ -29,45 +29,63 @@ public class Command {
 
     private List<String> args;
 
-    public Command parseCmd(String[] args) {
+    public Command() {
+    }
+
+    public void parseCmd(String[] args) {
         final CommandLineParser parser = new DefaultParser();
         final Options options = new Options();
         options.addOption("?","help", false, "print help message");
         options.addOption("version", false, "print the version information and exit");
         options.addOption("verbose", false, "enable verbose output");
-        options.addOption("verbose:class", false, "enable verbose output");
-        options.addOption("verbose:inst", false, "enable verbose output");
+        options.addOption("verbose_class", false, "enable verbose output");
+        options.addOption("verbose_inst", false, "enable verbose output");
         options.addOption("cp", "classpath", true, "classpath");
         options.addOption("t", false, "display current time");
         options.addOption("Xjre", "Xjre", true, "path to jre");
 
         final CommandLine line;
         HelpFormatter formatter = new HelpFormatter();
-        Command command = new Command();
         try {
             line = parser.parse(options, args);
             List<String> argList = line.getArgList();
             if (argList.size() > 0) {
-                command.setClazz(argList.get(0));
-                command.setArgs(Lists.newArrayList(argList.subList(1, argList.size() - 1)));
+                this.setClazz(argList.get(0));
+                List<String> classArgs = Lists.newArrayList();
+                if (argList.size() > 1) {
+                    classArgs = Lists.newArrayList(argList.subList(1, argList.size() - 1));
+                }
+                this.setArgs(classArgs);
             }
             if (line.hasOption('t')) {
                 System.err.println(LocalDateTime.now());
-            } else if (line.hasOption("help") || line.hasOption("?")) {
+            }
+            if (line.hasOption("help") || line.hasOption("?")) {
                 formatter.printHelp("?", options, true);
-            } else if (line.hasOption("version")) {
+            }
+            if (line.hasOption("version")) {
                 System.err.println("version 0.0.1");
-            } else if (line.hasOption("verbose")) {
-                command.setVerboseClassFlag(true);
-            } else if (line.hasOption("verbose:class")) {
-                command.setVerboseClassFlag(true);
-            } else if (line.hasOption("verbose:inst")) {
-                command.setVerboseInstFlag(true);
+            }
+            if (line.hasOption("verbose")) {
+                this.setVerboseClassFlag(true);
+            }
+            if (line.hasOption("verbose_class")) {
+                this.setVerboseClassFlag(true);
+            }
+            if (line.hasOption("verbose_inst")) {
+                this.setVerboseInstFlag(true);
+            }
+            if (line.hasOption("Xjre")) {
+                String xJrePath = line.getOptionValue("Xjre");
+                this.setXJreOption(xJrePath);
+            }
+            if (line.hasOption("cp")) {
+                String cp = line.getOptionValue("cp");
+                this.setClazz(cp);
             }
         } catch (ParseException e) {
             formatter.printHelp("?", options, true);
         }
-        return command;
     }
 
     public boolean isHelpFlag() {

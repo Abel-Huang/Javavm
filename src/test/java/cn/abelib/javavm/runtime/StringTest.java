@@ -1,4 +1,4 @@
-package cn.abelib.javavm.heap;
+package cn.abelib.javavm.runtime;
 
 import cn.abelib.javavm.Bootstrap;
 import cn.abelib.javavm.Command;
@@ -19,7 +19,7 @@ public class StringTest {
         command.setXJreOption("D:\\dev\\jdk\\jre");
         command.setCpOption("D:\\project\\java\\Javavm\\datas");
         command.setClazz("Hello");
-        command.setVerboseInstFlag(true);
+        command.setVerboseInstFlag(false);
         command.setVerboseClassFlag(true);
         Bootstrap.startJVM(command);
     }

@@ -1,8 +1,5 @@
-package cn.abelib.javavm;
+package cn.abelib.javavm.runtime;
 
-import cn.abelib.javavm.runtime.Frame;
-import cn.abelib.javavm.runtime.LocalVars;
-import cn.abelib.javavm.runtime.OperandStack;
 import org.junit.Test;
 
 /**
