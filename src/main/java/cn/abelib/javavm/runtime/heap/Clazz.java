@@ -279,7 +279,6 @@ public class Clazz {
     }
 
     public String getPackageName() {
-        // todo code fix
         int i = this.name.lastIndexOf( "/");
         if (i >= 0) {
             return this.name.substring(0, i);
@@ -302,8 +301,7 @@ public class Clazz {
      */
     public boolean isSubClassOf(Clazz other) {
         for (Clazz c = this.superClass; c != null; c = c.superClass) {
-            // todo equal fix
-            if (c == other) {
+            if (c.getName().equals(other.getName())) {
                 return true;
             }
         }

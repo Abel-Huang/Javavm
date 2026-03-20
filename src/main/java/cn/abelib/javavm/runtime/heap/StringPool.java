@@ -18,30 +18,36 @@ public class StringPool {
         if (stringPool.containsKey(string)) {
             return stringPool.get(string);
         }
-        char[] chars = string.toCharArray();
-        JvmObject charRef = null;
         JvmObject strRef = null;
         try {
-            // init todo setValue
-            charRef = new JvmObject(loader.loadClass("[C"), chars.length);
-            List<Integer> charList = charRef.getChars();
-            for (int i = 0; i < chars.length; i ++) {
-                charList.set(i, (int) chars[i]);
-            }
             strRef = loader.loadClass("java/lang/String").newObject();
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException();
         }
 
-        strRef.setRefVar("value", "[C", charRef);
+        // 直接使用 stringValue 字段存储字符串，避免 Java 版本差异（Java 9+ String.value 是 byte[] 而非 char[]）
+        strRef.setStringValue(string);
         stringPool.put(string, strRef);
         return strRef;
     }
 
     public static String getString(JvmObject jStr) {
+        // 优先使用 stringValue 字段
+        String strVal = jStr.getStringValue();
+        if (strVal != null) {
+            return strVal;
+        }
+        // 回退到从 value 字段读取
         JvmObject charArr = jStr.getRefVar("value", "[C");
-        return chars2String(charArr.getChars());
+        if (charArr == null) {
+            // 尝试 byte[] (Java 9+)
+            charArr = jStr.getRefVar("value", "[B");
+        }
+        if (charArr != null) {
+            return chars2String(charArr.getChars());
+        }
+        return "";
     }
 
     private static String chars2String(List<Integer> ints) {

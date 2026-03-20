@@ -16,9 +16,11 @@ public class StringTest {
     @Test
     public void startJVMTest() throws IOException {
         Command command = new Command();
-        command.setXJreOption("D:\\dev\\jdk\\jre");
-        command.setCpOption("D:\\project\\java\\Javavm\\datas");
-        command.setClazz("Hello");
+        String javaHome = System.getProperty("java.home");
+        String projectPath = System.getProperty("user.dir");
+        command.setXJreOption(javaHome);
+        command.setCpOption(projectPath + "/target/test-classes");
+        command.setClazz("cn.abelib.javavm.testcase.Hello");
         command.setVerboseInstFlag(false);
         command.setVerboseClassFlag(true);
         Bootstrap.startJVM(command);

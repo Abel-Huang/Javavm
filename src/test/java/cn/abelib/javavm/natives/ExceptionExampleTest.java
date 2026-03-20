@@ -12,17 +12,17 @@ import java.io.IOException;
  * @date 2023/8/21 23:16
  */
 public class ExceptionExampleTest {
-
     /**
-     * fixme
      * @throws IOException
      */
     @Test
     public void exceptionTest() throws IOException {
         Command command = new Command();
-        command.setXJreOption("D:\\dev\\jdk\\jre");
-        command.setCpOption("D:\\project\\java\\Javavm\\datas");
-        command.setClazz("ExceptionExample");
+        String javaHome = System.getProperty("java.home");
+        String projectPath = System.getProperty("user.dir");
+        command.setXJreOption(javaHome);
+        command.setCpOption(projectPath + "/target/test-classes");
+        command.setClazz("cn.abelib.javavm.testcase.ExceptionExample");
         command.setVerboseInstFlag(true);
         command.setVerboseClassFlag(true);
         Bootstrap.startJVM(command);

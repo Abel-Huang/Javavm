@@ -81,6 +81,11 @@ public class InvokeNative extends NoOperandsInstruction {
                 "setOut0",
                 "(Ljava/lang/Class;)Z",
                 new ClazzSetOut0());
+
+        NativeRegistry.register("java/lang/Class",
+                "initClassName",
+                "()Ljava/lang/String;",
+                new ClazzInitClassName());
     }
 
     @Override

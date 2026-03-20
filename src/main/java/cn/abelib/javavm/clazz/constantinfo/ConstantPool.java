@@ -33,6 +33,13 @@ public class ConstantPool {
         }
     }
 
+    public ConstantInfo readConstantInfo(ClassReader reader, ConstantPool cp) {
+        int tag = reader.readUInt8();
+        ConstantInfo constantInfo = newConstantInfo(tag, cp);
+        constantInfo.readInfo(reader);
+        return constantInfo;
+    }
+
     public ConstantInfo newConstantInfo(int tag, ConstantPool cp) {
         switch (tag) {
             case CONSTANT_Integer:
@@ -58,13 +65,19 @@ public class ConstantPool {
             case CONSTANT_NameAndType:
                 return new ConstantNameAndTypeInfo(cp);
             case CONSTANT_MethodType:
-                return new ConstantMethodTypeInfo();
+                return new ConstantMethodTypeInfo(cp);
             case CONSTANT_MethodHandle:
-                return new ConstantMethodHandleInfo();
+                return new ConstantMethodHandleInfo(cp);
+            case CONSTANT_Dynamic:
+                return new ConstantDynamicInfo();
             case CONSTANT_InvokeDynamic:
                 return new ConstantInvokeDynamicInfo();
+            case CONSTANT_Module:
+                return new ConstantModuleInfo(cp);
+            case CONSTANT_Package:
+                return new ConstantPackageInfo(cp);
             default:
-                throw new RuntimeException("java.lang.ClassFormatError:constantpooltag!");
+                throw new RuntimeException("java.lang.ClassFormatError:constantpooltag! tag=" + tag);
         }
     }
 

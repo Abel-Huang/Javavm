@@ -30,9 +30,28 @@ public class InvokeVirtual extends Index16Instruction implements MethodInvokeIns
         if (resolvedMethod.isStatic()) {
             throw new RuntimeException("java.lang.IncompatibleClassChangeError");
         }
-        JvmObject ref = frame.getOperandStack().getRefFromTop(resolvedMethod.getArgSlotCount() - 1);
+        
+        int argSlotCount = resolvedMethod.getArgSlotCount();
+        OperandStack stack = frame.getOperandStack();
+        
+        // 确保栈上有足够的参数
+        if (argSlotCount < 1 || stack.getSize() < argSlotCount) {
+            throw new RuntimeException("Stack too small for method invocation: " + methodRef.getMethodName());
+        }
+        
+        // 获取对象引用
+        JvmObject ref;
+        if (argSlotCount == 1) {
+            // 对于没有额外参数的方法（只有 this），直接 pop
+            ref = stack.popRef();
+            // 重新压入栈（因为后续逻辑需要它）
+            stack.pushRef(ref);
+        } else {
+            ref = stack.getRefFromTop(argSlotCount - 1);
+        }
+        
+        // todo hack! delete println hack
         if (ref == null) {
-            // todo hack! delete println hack
             if (methodRef.getMethodName().equals("println")) {
                 _println(frame.getOperandStack(), methodRef.getDescriptor());
                 return;
@@ -48,7 +67,8 @@ public class InvokeVirtual extends Index16Instruction implements MethodInvokeIns
             throw new RuntimeException("java.lang.IllegalAccessError");
         }
 
-        Method methodToBeInvoked = methodRef.lookupMethodInClass(currentClass.getSuperClass(),
+        // 在对象的实际类中查找方法（而不是调用者的父类）
+        Method methodToBeInvoked = methodRef.lookupMethodInClass(ref.getClazz(),
                 methodRef.getMethodName(), methodRef.getDescriptor());
 
         if (methodToBeInvoked == null || methodToBeInvoked.isAbstract()) {

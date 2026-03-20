@@ -83,21 +83,11 @@ public class ClassFile {
     public void readAndCheckVersion(ClassReader reader) {
         this.minorVersion = reader.readUInt16();
         this.majorVersion = reader.readUInt16();
-        switch (this.majorVersion) {
-            case 45:
-                return;
-            case 46:
-            case 47:
-            case 48:
-            case 49:
-            case 50:
-            case 51:
-            case 52:
-                if (this.minorVersion == 0) {
-                    return;
-                }
+        // 支持 Java 1.1 到 Java 24 (major version 45-68)
+        if (this.majorVersion >= 45 && this.majorVersion <= 68) {
+            return;
         }
-        throw new RuntimeException("java.lang.UnsupportedClassVersionError!");
+        throw new RuntimeException("java.lang.UnsupportedClassVersionError! Major: " + this.majorVersion);
     }
     
     public int getMinorVersion() {

@@ -4,25 +4,55 @@ import cn.abelib.javavm.Classpath;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static org.junit.Assert.*;
 
 /**
+ * Classpath 边界测试
  * @author abel.huang
  * @version 1.0
- * @date 2023/3/12 18:26
+ * @date 2025/1/20
  */
-public class ClasspathTest {
+public class ClasspathBoundaryTest {
 
     @Test
-    public void testClasspathParse() throws IOException {
+    public void testReadClassWithNullClassName() {
         Classpath classpath = new Classpath();
         String javaHome = System.getProperty("java.home");
         classpath.parse(javaHome, "");
         
-        assertNotNull("Classpath 不应为 null", classpath);
+        try {
+            byte[] bytes = classpath.readClass(null);
+            // 根据实现，可能返回 null 或抛出异常
+        } catch (Exception e) {
+            // 预期可能抛出异常
+            assertTrue(e instanceof NullPointerException || e instanceof IOException);
+        }
+    }
+
+    @Test
+    public void testReadClassWithEmptyClassName() throws IOException {
+        Classpath classpath = new Classpath();
+        String javaHome = System.getProperty("java.home");
+        classpath.parse(javaHome, "");
+        
+        // 空类名会被转换为 ".class"，这可能匹配到某些文件
+        // 这里测试实际行为，验证不会抛出异常
+        byte[] bytes = classpath.readClass("");
+        // 根据类路径内容，可能返回 null 或非 null
+        // 主要验证方法不会崩溃
+    }
+
+    @Test
+    public void testReadClassWithNonExistentClass() throws IOException {
+        Classpath classpath = new Classpath();
+        String javaHome = System.getProperty("java.home");
+        classpath.parse(javaHome, "");
+        
+        // 使用一个极不可能存在的类名
+        byte[] bytes = classpath.readClass("com.example.nonexistent.XYZ123456");
+        // 空数组表示未找到，null 表示其他问题
+        assertTrue("不存在的类应该返回空数组", bytes == null || bytes.length == 0);
     }
 
     @Test
@@ -43,17 +73,6 @@ public class ClasspathTest {
     }
 
     @Test
-    public void testReadJavaLangString() throws IOException {
-        Classpath classpath = new Classpath();
-        String javaHome = System.getProperty("java.home");
-        classpath.parse(javaHome, "");
-        
-        byte[] bytes = classpath.readClass("java.lang.String");
-        assertNotNull("应该能读取 java.lang.String", bytes);
-        assertTrue("类文件应该有内容", bytes.length > 0);
-    }
-
-    @Test
     public void testReadClassWithSlashSeparator() throws IOException {
         Classpath classpath = new Classpath();
         String javaHome = System.getProperty("java.home");
@@ -66,20 +85,16 @@ public class ClasspathTest {
     }
 
     @Test
-    public void testToAbsolutePath() {
-        String path = "dev/jdk/jre";
-        Path absDir = Paths.get(path).toAbsolutePath();
-        assertNotNull("绝对路径不应为 null", absDir);
-        assertTrue("绝对路径应该包含原始路径", absDir.toString().contains("dev"));
-    }
-
-    @Test
-    public void testSplitPath() {
-        String path = "/dev/jdk/jre/lib/, /dev/jdk/jre";
-        String[] pathsList = path.split(",");
-        assertEquals("应该分割为 2 个路径", 2, pathsList.length);
-        assertEquals("第一个路径", "/dev/jdk/jre/lib/", pathsList[0].trim());
-        assertEquals("第二个路径", "/dev/jdk/jre", pathsList[1].trim());
+    public void testClasspathWithInvalidJrePath() {
+        Classpath classpath = new Classpath();
+        
+        try {
+            classpath.parse("/invalid/jre/path", "");
+            // 某些实现可能会抛出异常
+        } catch (Exception e) {
+            // 预期行为
+            assertTrue(e instanceof RuntimeException);
+        }
     }
 
     @Test

@@ -11,6 +11,7 @@ import cn.abelib.javavm.runtime.heap.ClassLoader;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -25,10 +26,10 @@ public class Interpreter {
         JvmThread thread = new JvmThread();
         Frame frame = new Frame(thread, method);
         try {
-            if (CollectionUtils.isNotEmpty(args)) {
-                JvmObject jArgs = createArgsArray(method.getClazz().getClassLoader(), args);
-                frame.getLocalVars().setRef(0, jArgs);
-            }
+            // 始终创建 args 数组，即使 args 为空（Java main 方法需要非 null 的 String[]）
+            JvmObject jArgs = createArgsArray(method.getClazz().getClassLoader(), 
+                    CollectionUtils.isNotEmpty(args) ? args : new ArrayList<>());
+            frame.getLocalVars().setRef(0, jArgs);
             thread.pushFrame(frame);
             loop(thread, printLog);
         } catch (Exception e) {
@@ -62,8 +63,9 @@ public class Interpreter {
     }
 
     private static JvmObject createArgsArray(ClassLoader loader, List<String> args) throws IOException {
-        Clazz stringClass = loader.loadClass("java/lang/String");
-        JvmObject argsArr = stringClass.newArray(args.size());
+        // 加载 String[] 数组类，而不是 String 类
+        Clazz stringArrayClass = loader.loadClass("[Ljava/lang/String;");
+        JvmObject argsArr = stringArrayClass.newArray(args.size());
         List<JvmObject> jArgs = argsArr.getRefs();
         for(int i = 0; i < args.size(); i++)  {
             String arg = args.get(i);

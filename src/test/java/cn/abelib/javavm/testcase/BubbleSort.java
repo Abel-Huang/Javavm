@@ -6,7 +6,7 @@ package cn.abelib.javavm.testcase;
  * @date 2023/7/13 22:53
  * TEST for Array Instruction
  */
-public class BubbleSortTest {
+public class BubbleSort {
 
 
     public static void main(String[] args) {

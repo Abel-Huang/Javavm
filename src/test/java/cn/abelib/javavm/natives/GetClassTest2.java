@@ -13,18 +13,14 @@ import java.io.IOException;
  */
 public class GetClassTest2 {
 
-    /**
-     * fixme
-     * Array index out of range: 2
-     *
-     * @throws IOException
-     */
     @Test
     public void startJVMTest() throws IOException {
         Command command = new Command();
-        command.setXJreOption("D:\\dev\\jdk\\jre");
-        command.setCpOption("D:\\project\\java\\Javavm\\datas");
-        command.setClazz("GetClassTest");
+        String javaHome = System.getProperty("java.home");
+        String projectPath = System.getProperty("user.dir");
+        command.setXJreOption(javaHome);
+        command.setCpOption(projectPath + "/target/test-classes");
+        command.setClazz("cn.abelib.javavm.testcase.GetClassTest");
         command.setVerboseInstFlag(true);
         command.setVerboseClassFlag(true);
         Bootstrap.startJVM(command);

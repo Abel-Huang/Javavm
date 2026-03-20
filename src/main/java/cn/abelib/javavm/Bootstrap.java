@@ -46,6 +46,9 @@ public class Bootstrap {
 
     private static ClassFile loadClass(String className , Classpath cp) throws IOException {
         byte[] data = cp.readClass(className);
+        if (data == null || data.length == 0) {
+            throw new IOException("Class not found: " + className + " (read " + (data == null ? 0 : data.length) + " bytes)");
+        }
         ClassFile classFile = new ClassFile();
         classFile.parse(data);
         return classFile;

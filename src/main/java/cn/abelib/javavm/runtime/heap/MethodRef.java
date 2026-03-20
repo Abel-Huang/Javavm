@@ -51,7 +51,11 @@ public class MethodRef extends MemberRef{
 
     public Method lookupMethodInClass(Clazz c, String name, String descriptor) {
         for (Clazz clazz  = c; clazz != null; clazz = clazz.getSuperClass()) {
-            for(Method method : clazz.getMethods()) {
+            Method[] methods = clazz.getMethods();
+            if (methods == null) {
+                continue;  // 跳过没有方法的类（如数组类、基本类型类）
+            }
+            for(Method method : methods) {
                 if (method.name.equals(name) && method.descriptor.equals(descriptor)) {
                     return method;
                 }

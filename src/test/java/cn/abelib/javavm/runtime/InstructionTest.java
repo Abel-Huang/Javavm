@@ -13,18 +13,14 @@ import java.io.IOException;
  */
 public class InstructionTest {
 
-    /**
-     * test for gauss alg, add 1 to 100
-     * @throws IOException
-     */
     @Test
     public void startJVMTest() throws IOException {
         Command command = new Command();
-        command.setXJreOption("D:\\dev\\jdk\\jre");
-        command.setCpOption("D:\\project\\java\\Javavm\\datas");
-        command.setClazz("GaussTest");
-        command.setVerboseInstFlag(false);
-        command.setVerboseClassFlag(true);
+        String javaHome = System.getProperty("java.home");
+        String projectPath = System.getProperty("user.dir");
+        command.setXJreOption(javaHome);
+        command.setCpOption(projectPath + "/target/test-classes");
+        command.setClazz("cn.abelib.javavm.testcase.GaussTest");
         Bootstrap.startJVM(command);
     }
 }

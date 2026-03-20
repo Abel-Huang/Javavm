@@ -34,15 +34,25 @@ public class PutField extends Index16Instruction {
         if (field.isStatic()) {
             throw new RuntimeException("java.lang.IncompatibleClassChangeError");
         }
+        // 简化 final 字段检查 - 允许在构造函数中设置 final 实例字段
         if (field.isFinal()) {
-            if (currentClass != clazz || !"<clinit>".equals(currentMethod.getName())) {
-                throw new RuntimeException("java.lang.IllegalAccessError");
+            // 允许：<clinit> 中设置静态 final 字段，或 <init> 中设置实例 final 字段
+            boolean isStatic = field.isStatic();
+            boolean isClinit = "<clinit>".equals(currentMethod.getName());
+            boolean isInit = "<init>".equals(currentMethod.getName());
+            
+            if (isStatic && !isClinit) {
+                // 静态 final 字段只能在 <clinit> 中设置
+                throw new RuntimeException("java.lang.IllegalAccessError: cannot set static final field outside <clinit>");
+            }
+            // 实例 final 字段可以在 <init> 中设置（简化处理，不检查是否是定义该字段的类）
+            if (!isStatic && !isInit && !isClinit) {
+                throw new RuntimeException("java.lang.IllegalAccessError: cannot set final field outside <init> or <clinit>");
             }
         }
 
         String descriptor = field.getDescriptor();
         int slotId = field.getSlotId();
-        LocalVars slots = clazz.getStaticVars();
         OperandStack stack = frame.getOperandStack();
         JvmObject ref = null;
         switch (descriptor.charAt(0)) {
@@ -57,6 +67,7 @@ public class PutField extends Index16Instruction {
                     throw new RuntimeException("java.lang.NullPointerException");
                 }
                 ref.getData().setInt(slotId, intVal);
+                break;
             case 'F':
                 float floatVal = stack.popFloat();
                 ref = stack.popRef();
@@ -64,6 +75,7 @@ public class PutField extends Index16Instruction {
                     throw new RuntimeException("java.lang.NullPointerException");
                 }
                 ref.getData().setFloat(slotId, floatVal);
+                break;
             case 'J':
                 long longVal = stack.popLong();
                 ref = stack.popRef();
@@ -71,6 +83,7 @@ public class PutField extends Index16Instruction {
                     throw new RuntimeException("java.lang.NullPointerException");
                 }
                 ref.getData().setLong(slotId, longVal);
+                break;
             case 'D':
                 double doubleVal = stack.popDouble();
                 ref = stack.popRef();
@@ -78,6 +91,7 @@ public class PutField extends Index16Instruction {
                     throw new RuntimeException("java.lang.NullPointerException");
                 }
                 ref.getData().setDouble(slotId, doubleVal);
+                break;
             case 'L':
             case '[':
                 JvmObject refVal = stack.popRef();
@@ -86,8 +100,9 @@ public class PutField extends Index16Instruction {
                     throw new RuntimeException("java.lang.NullPointerException");
                 }
                 ref.getData().setRef(slotId, refVal);
+                break;
             default:
-                // todo
+                throw new RuntimeException("Unknown field descriptor: " + descriptor);
         }
     }
 }

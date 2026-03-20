@@ -553,10 +553,10 @@ public class Instructions {
              	return ARRAY_LENGTH;
              case 0xbf:
              	return ATHROW;
-            // case 0xc0:
-            // 	return new CHECK_CAST();
-            // case 0xc1:
-            // 	return new INSTANCE_OF();
+            case 0xc0:
+                return new CheckCast();
+            case 0xc1:
+                return new InstanceOf();
             // case 0xc2:
             // 	return monitorenter
             // case 0xc3:

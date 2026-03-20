@@ -20,10 +20,10 @@ public class ClassLoader {
     private Map<String, Clazz> clazzMap;
 
     /**
-     * todo 基础类型集合
+     * 基础类型集合
      */
-    private String[] primitiveTypes = {"int", "float", "long", "short",
-            "char", "double", "byte"};
+    private String[] primitiveTypes = {"void", "int", "float", "long", "short",
+            "char", "double", "byte", "boolean"};
 
     public ClassLoader(Classpath cp, boolean verboseClassFlag) {
         this.classpath = cp;
@@ -79,6 +79,13 @@ public class ClassLoader {
             // 类已经加载
             return clazzMap.get(name);
         }
+        
+        // 处理基本类型描述符 (V, Z, B, C, S, I, J, F, D)
+        String primitiveName = descriptorToPrimitiveName(name);
+        if (primitiveName != null && clazzMap.containsKey(primitiveName)) {
+            return clazzMap.get(primitiveName);
+        }
+        
         Clazz clazz;
         if (name.charAt(0) == '[') {
             clazz = this.loadArrayClass(name);
@@ -92,6 +99,25 @@ public class ClassLoader {
             clazz.setJClass(jClass);
         }
         return clazz;
+    }
+    
+    /**
+     * 将基本类型描述符转换为类型名称
+     * V -> void, Z -> boolean, etc.
+     */
+    private String descriptorToPrimitiveName(String descriptor) {
+        switch (descriptor) {
+            case "V": return "void";
+            case "Z": return "boolean";
+            case "B": return "byte";
+            case "C": return "char";
+            case "S": return "short";
+            case "I": return "int";
+            case "J": return "long";
+            case "F": return "float";
+            case "D": return "double";
+            default: return null;
+        }
     }
 
     /**
@@ -114,6 +140,15 @@ public class ClassLoader {
         String[] interfaceNames = new String[]{interfaceClass1.getName(), interfaceClass2.getName()};
         clazz.setInterfaceNames(interfaceNames);
         clazz.setInitStarted(true);
+        
+        // 为数组类设置 jClass
+        if (this.clazzMap.containsKey("java/lang/Class")) {
+            Clazz jlClassClass = clazzMap.get("java/lang/Class");
+            JvmObject jClass = jlClassClass.newObject();
+            jClass.setExtra(clazz);
+            clazz.setJClass(jClass);
+        }
+        
         this.clazzMap.put(clazz.getName(), clazz);
         return clazz;
     }
@@ -179,7 +214,7 @@ public class ClassLoader {
                 case "I":
                    int intVal = constantPool.getConstant(cpIndex).getIntValue();
                    vars.setInt(slotId, intVal);
-                    break;
+                   break;
                 case "J":
                     long longVal = constantPool.getConstant(cpIndex).getLongValue();
                     vars.setLong(slotId, longVal);
@@ -193,13 +228,17 @@ public class ClassLoader {
                     vars.setDouble(slotId, doubleVal);
                     break;
                 case "Ljava/lang/String;":
-                    // support string
-                    String str = constantPool.getConstant(cpIndex).getStringValue();
-                    if (Objects.isNull(str)) {
-                        break;
+                    String strVal = constantPool.getConstant(cpIndex).getStringValue();
+                    // 加载 String 类并创建字符串对象
+                    try {
+                        Clazz stringClazz = this.loadClass("java/lang/String");
+                        JvmObject strObj = stringClazz.newObject();
+                        strObj.setStringValue(strVal);
+                        vars.setRef(slotId, strObj);
+                    } catch (IOException e) {
+                        throw new RuntimeException("Failed to load java/lang/String", e);
                     }
-                    JvmObject jStr = StringPool.getString(clazz.getClassLoader(), str);
-                    vars.setRef(slotId, jStr);
+                    break;
             }
         }
     }

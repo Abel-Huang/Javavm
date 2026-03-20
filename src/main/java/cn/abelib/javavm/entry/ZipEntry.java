@@ -26,11 +26,20 @@ public class ZipEntry implements Entry {
     @Override
     public byte[] readClass(String className) throws IOException {
         // 读取zip文件中文件，找到和和className文件名相同的文件
+        // jmod 文件需要加上 classes/ 前缀
+        String path = absDir.toString();
+        boolean isJmod = path.endsWith(".jmod") || path.endsWith(".JMOD");
+
         try(ZipFile zipFile = new ZipFile(absDir.toFile())) {
             Enumeration<? extends java.util.zip.ZipEntry> entries =  zipFile.entries();
             while (entries.hasMoreElements()) {
                 java.util.zip.ZipEntry zipEntry = entries.nextElement();
-                if (zipEntry.getName().equals(className)) {
+                String entryName = zipEntry.getName();
+                String searchName = className;
+                if (isJmod) {
+                    searchName = "classes/" + className;
+                }
+                if (entryName.equals(searchName)) {
                     return IOUtils.toByteArray(zipFile.getInputStream(zipEntry));
                 }
             }

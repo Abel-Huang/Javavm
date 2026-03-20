@@ -7,6 +7,11 @@ package cn.abelib.javavm.testcase;
  */
 public class ExceptionExample {
     public static void main(String[] args) {
+        // 处理 args 为 null 的情况
+        if (args == null || args.length == 0) {
+            System.out.println("No args provided");
+            return;
+        }
         foo(args);
     }
 

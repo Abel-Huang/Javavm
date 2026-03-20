@@ -3,6 +3,7 @@ package cn.abelib.javavm.instructions.constants;
 import cn.abelib.javavm.runtime.Frame;
 import cn.abelib.javavm.runtime.OperandStack;
 import cn.abelib.javavm.runtime.heap.*;
+import cn.abelib.javavm.runtime.heap.ClassLoader;
 
 import java.io.IOException;
 
@@ -30,12 +31,33 @@ public interface LoadConstantInstruction {
             return;
         } else if (poolInfo.isSetClassRef()) {
             ClassRef classRef = poolInfo.getClassRef();
-            JvmObject classObj;
+            JvmObject classObj = null;
+            Clazz resolvedClazz = null;
             try {
-                classObj = classRef.resolvedClass().getJClass();
+                resolvedClazz = classRef.resolvedClass();
+                if (resolvedClazz == null) {
+                    throw new RuntimeException("resolvedClass returned null for classRef");
+                }
+                classObj = resolvedClazz.getJClass();
+                if (classObj == null) {
+                    // 尝试重新创建 JClass
+                    ClassLoader classLoader = resolvedClazz.getClassLoader();
+                    if (classLoader != null) {
+                        Clazz jlClassClass = classLoader.loadClass("java/lang/Class");
+                        classObj = jlClassClass.newObject();
+                        classObj.setExtra(resolvedClazz);
+                        resolvedClazz.setJClass(classObj);
+                    }
+                }
+                if (classObj == null) {
+                    throw new RuntimeException("Failed to create JClass object for: " + resolvedClazz.getName());
+                }
             } catch (IOException e) {
                 e.printStackTrace();
-                throw new RuntimeException("IOException");
+                throw new RuntimeException("IOException", e);
+            }
+            if (classObj == null) {
+                throw new RuntimeException("Failed to create JClass object");
             }
             stack.pushRef(classObj);
             return;

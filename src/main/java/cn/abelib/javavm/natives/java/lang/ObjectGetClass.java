@@ -2,6 +2,7 @@ package cn.abelib.javavm.natives.java.lang;
 
 import cn.abelib.javavm.natives.NativeMethod;
 import cn.abelib.javavm.runtime.Frame;
+import cn.abelib.javavm.runtime.heap.Clazz;
 import cn.abelib.javavm.runtime.heap.JvmObject;
 
 /**
@@ -18,7 +19,20 @@ public class ObjectGetClass implements NativeMethod {
     @Override
     public void execute(Frame frame) {
         JvmObject thisRef = frame.getLocalVars().getThis();
-        JvmObject jClass = thisRef.getClazz().getJClass();
+        if (thisRef == null) {
+            throw new RuntimeException("java.lang.NullPointerException: this is null in getClass()");
+        }
+        
+        Clazz clazz = thisRef.getClazz();
+        if (clazz == null) {
+            throw new RuntimeException("java.lang.NullPointerException: clazz is null in getClass()");
+        }
+        
+        JvmObject jClass = clazz.getJClass();
+        if (jClass == null) {
+            throw new RuntimeException("java.lang.NullPointerException: jClass is null for class: " + clazz.getName());
+        }
+        
         frame.getOperandStack().pushRef(jClass);
     }
 }

@@ -8,10 +8,19 @@ import cn.abelib.javavm.clazz.ClassReader;
  * @date 2023/3/22 23:34
  */
 public class ConstantMethodTypeInfo implements ConstantInfo {
+    private ConstantPool constantPool;
     private int descriptorIndex;
+
+    public ConstantMethodTypeInfo(ConstantPool constantPool) {
+        this.constantPool = constantPool;
+    }
 
     @Override
     public void readInfo(ClassReader reader) {
         this.descriptorIndex = reader.readUInt16();
+    }
+
+    public int getDescriptorIndex() {
+        return descriptorIndex;
     }
 }

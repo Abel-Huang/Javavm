@@ -1,6 +1,7 @@
 package cn.abelib.javavm.instructions.references;
 
 import cn.abelib.javavm.instructions.base.Index16Instruction;
+import cn.abelib.javavm.instructions.base.InitClazz;
 import cn.abelib.javavm.runtime.Frame;
 import cn.abelib.javavm.runtime.LocalVars;
 import cn.abelib.javavm.runtime.OperandStack;
@@ -32,6 +33,13 @@ public class GetStatic extends Index16Instruction {
         clazz = field.getClazz();
         if (!field.isStatic()) {
             throw new RuntimeException("java.lang.IncompatibleClassChangeError");
+        }
+
+        // 触发类初始化
+        if (!clazz.isInitStarted()) {
+            frame.revertPc();
+            InitClazz.initClass(frame.getThread(), clazz);
+            return;
         }
 
         String descriptor = field.getDescriptor();

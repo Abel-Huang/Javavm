@@ -3,11 +3,10 @@ package cn.abelib.javavm.clazz.constantinfo;
 import cn.abelib.javavm.clazz.ClassReader;
 
 /**
- * @author abel.huang
- * @version 1.0
- * @date 2023/3/22 23:34
+ * CONSTANT_Dynamic_info structure (tag=17)
+ * Used for constant dynamic in Java 11+
  */
-public class ConstantInvokeDynamicInfo implements ConstantInfo {
+public class ConstantDynamicInfo implements ConstantInfo {
     private int bootstrapMethodAttrIndex;
     private int nameAndTypeIndex;
 

@@ -36,6 +36,11 @@ public class WildcardEntry implements Entry {
                                 || StringUtils.endsWith(jarPath, ".JAR")) {
                             return Entry.newEntry(jarPath);
                         }
+                        // 支持 Java 9+ 的 jmod 文件
+                        if (StringUtils.endsWith(jarPath, ".jmod")
+                                || StringUtils.endsWith(jarPath, ".JMOD")) {
+                            return Entry.newEntry(jarPath);
+                        }
                         return null;
                     })
                     .filter(Objects::nonNull)

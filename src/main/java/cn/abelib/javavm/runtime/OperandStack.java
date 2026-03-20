@@ -106,7 +106,15 @@ public class OperandStack {
     }
 
     public JvmObject getRefFromTop(int n) {
-        return this.slots.get(this.size - 1 - n).getRef();
+        if (n < 0 || n >= this.size) {
+            throw new RuntimeException("Invalid stack offset: " + n + ", stack size: " + this.size);
+        }
+        int index = this.size - 1 - n;
+        Slot slot = this.slots.get(index);
+        if (slot == null) {
+            throw new RuntimeException("Slot at index " + index + " is null");
+        }
+        return slot.getRef();
     }
 
     @Override
@@ -120,5 +128,9 @@ public class OperandStack {
     public void clear() {
         this.size = 0;
         this.slots.clear();
+    }
+    
+    public int getSize() {
+        return size;
     }
 }

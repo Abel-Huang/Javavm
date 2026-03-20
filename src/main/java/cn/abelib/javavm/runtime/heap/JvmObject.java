@@ -30,6 +30,10 @@ public class JvmObject {
      * extra todo
      */
     private Object extra;
+    private LocalVars fields;
+    // 用于存储字符串字面量
+    private String stringValue;
+
 
     public JvmObject(Clazz clazz) {
         this.clazz = clazz;
@@ -169,7 +173,7 @@ public class JvmObject {
 
     public JvmObject jvmClone() {
         JvmObject clone = new JvmObject(this.clazz, this.getArrayLength());
-       
+
         switch (this.clazz.getName()) {
             // []int8
             case "[Z":
@@ -206,5 +210,13 @@ public class JvmObject {
         }
 
         return clone;
+    }
+
+    public String getStringValue() {
+        return stringValue;
+    }
+
+    public void setStringValue(String stringValue) {
+        this.stringValue = stringValue;
     }
 }

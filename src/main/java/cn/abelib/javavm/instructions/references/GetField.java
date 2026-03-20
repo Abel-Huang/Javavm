@@ -43,7 +43,7 @@ public class GetField extends Index16Instruction {
 
         String descriptor = field.getDescriptor();
         int slotId = field.getSlotId();
-        LocalVars slots = clazz.getStaticVars();
+        LocalVars slots = ref.getData();
 
         switch (descriptor.charAt(0)) {
             case 'Z':
@@ -52,15 +52,22 @@ public class GetField extends Index16Instruction {
             case 'S':
             case 'I':
                 stack.pushInt(slots.getInt(slotId));
+                break;
             case 'F':
                 stack.pushFloat(slots.getFloat(slotId));
+                break;
             case 'J':
                 stack.pushLong(slots.getLong(slotId));
+                break;
             case 'D':
                 stack.pushDouble(slots.getDouble(slotId));
+                break;
             case 'L':
             case '[':
                 stack.pushRef(slots.getRef(slotId));
+                break;
+            default:
+                throw new RuntimeException("Unknown field descriptor: " + descriptor);
         }
     }
 }

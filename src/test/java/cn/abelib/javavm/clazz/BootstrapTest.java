@@ -1,4 +1,4 @@
-package cn.abelib.javavm.arrays;
+package cn.abelib.javavm.clazz;
 
 import cn.abelib.javavm.Bootstrap;
 import cn.abelib.javavm.Command;
@@ -9,20 +9,27 @@ import java.io.IOException;
 /**
  * @author abel.huang
  * @version 1.0
- * @date 2023/7/13 22:56
+ * @date 2023/3/29 0:13
  */
-public class ArrayTest {
+public class BootstrapTest {
+
+    @Test
+    public void startTest() throws IOException {
+        String[] args = {"-Xjre", System.getProperty("java.home"), "java.lang.String"};
+        Bootstrap.start(args);
+    }
 
     @Test
     public void startJVMTest() throws IOException {
         Command command = new Command();
+        // 使用当前 JVM 的 home 目录作为 JRE 路径
         String javaHome = System.getProperty("java.home");
         String projectPath = System.getProperty("user.dir");
         command.setXJreOption(javaHome);
+        // 设置类路径指向测试类目录（绝对路径）
         command.setCpOption(projectPath + "/target/test-classes");
-        command.setClazz("cn.abelib.javavm.testcase.BubbleSort");
-        command.setVerboseInstFlag(true);
-        command.setVerboseClassFlag(true);
+        // 使用项目中的测试类
+        command.setClazz("cn.abelib.javavm.testcase.Hello");
         Bootstrap.startJVM(command);
     }
 }

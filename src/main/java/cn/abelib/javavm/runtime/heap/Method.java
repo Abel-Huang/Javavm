@@ -34,47 +34,47 @@ public class Method extends ClassMember {
         }
     }
 
-    /**
-     * todo
-     *
-     * @param returnType
-     */
     private void injectCodeAttribute(String returnType) {
         this.maxStack = 4;
         this.maxLocals = this.argSlotCount;
         switch (returnType.charAt(0)) {
             case 'V':
                 this.code = new byte[]{(byte) 0xfe, (byte) 0xb1};
+                break;
             case 'D':
                 // dreturn
                 this.code = new byte[]{(byte) 0xfe, (byte) 0xaf};
+                break;
             case 'F':
                 // freturn
                 this.code = new byte[]{(byte) 0xfe, (byte) 0xae};
+                break;
             case 'J':
                 // lreturn
                 this.code = new byte[]{(byte) 0xfe, (byte) 0xad};
+                break;
             case 'L':
             case '[':
                 // areturn
                 this.code = new byte[]{(byte) 0xfe, (byte) 0xb0};
+                break;
             default:
                 // ireturn
                 this.code = new byte[]{(byte) 0xfe, (byte) 0xac};
+                break;
         }
     }
 
     private void calcArgSlotCount() {
         this.parsedDescriptor = new MethodDescriptor() ;
         parsedDescriptor.parseMethodDescriptor(super.descriptor);
-        if (CollectionUtils.isEmpty(parsedDescriptor.getParameterTypes())) {
-            return;
-        }
-        for (String paramType : parsedDescriptor.getParameterTypes()) {
-            this.argSlotCount++;
-            if (paramType.equals(SymbolicReferences.LONG_SYMBOLIC)
-                    || paramType.equals(SymbolicReferences.DOUBLE_SYMBOLIC)) {
+        if (!CollectionUtils.isEmpty(parsedDescriptor.getParameterTypes())) {
+            for (String paramType : parsedDescriptor.getParameterTypes()) {
                 this.argSlotCount++;
+                if (paramType.equals(SymbolicReferences.LONG_SYMBOLIC)
+                        || paramType.equals(SymbolicReferences.DOUBLE_SYMBOLIC)) {
+                    this.argSlotCount++;
+                }
             }
         }
         if (!this.isStatic()) {
