@@ -7,6 +7,7 @@ package cn.abelib.javavm.runtime;
  */
 public class JvmThread {
     private int pc;
+
     private JvmStack stack;
 
     public int getPc() {
@@ -33,7 +34,27 @@ public class JvmThread {
         return this.stack.top();
     }
 
+    /**
+     * alias for topFrame
+     * @return
+     */
+    public Frame currentFrame() {
+        return this.topFrame();
+    }
+
     public boolean isStackEmpty() {
         return this.stack.isEmpty();
+    }
+
+    public JvmStack getStack() {
+        return this.stack;
+    }
+
+    public void clearStack() {
+        this.stack.clear();
+    }
+
+    public Frame[] getFrames() {
+        return this.stack.getFrames();
     }
 }

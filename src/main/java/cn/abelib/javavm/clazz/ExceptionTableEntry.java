@@ -23,4 +23,20 @@ public class ExceptionTableEntry {
 
     public ExceptionTableEntry() {
     }
+
+    public int getStartPc() {
+        return startPc;
+    }
+
+    public int getEndPc() {
+        return endPc;
+    }
+
+    public int getHandlerPc() {
+        return handlerPc;
+    }
+
+    public int getCatchType() {
+        return catchType;
+    }
 }

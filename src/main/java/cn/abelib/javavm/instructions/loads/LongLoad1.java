@@ -1,6 +1,6 @@
 package cn.abelib.javavm.instructions.loads;
 
-import cn.abelib.javavm.instructions.base.Index8Instruction;
+import cn.abelib.javavm.instructions.base.NoOperandsInstruction;
 import cn.abelib.javavm.runtime.Frame;
 
 /**
@@ -11,7 +11,7 @@ import cn.abelib.javavm.runtime.Frame;
  * 加载指令从局部变量表获取变量，
  * 然后推入操作数栈顶
  */
-public class LongLoad1 extends Index8Instruction implements LongLoadInstruction {
+public class LongLoad1 extends NoOperandsInstruction implements LongLoadInstruction {
 
     @Override
     public void execute(Frame frame) {

@@ -3,9 +3,8 @@ package cn.abelib.javavm.clazz;
 import cn.abelib.javavm.Constants;
 import cn.abelib.javavm.clazz.attributeinfo.AttributeInfo;
 import cn.abelib.javavm.clazz.attributeinfo.AttributeInfos;
+import cn.abelib.javavm.clazz.attributeinfo.SourceFileAttribute;
 import cn.abelib.javavm.clazz.constantinfo.ConstantPool;
-
-import java.io.IOException;
 
 /**
  * @author abel.huang
@@ -37,7 +36,7 @@ public class ClassFile {
 
     public ClassFile() {}
     
-    public void parse(byte[] data) throws IOException {
+    public void parse(byte[] data) {
         ClassReader cr = new ClassReader(data);
         this.read(cr);
     }
@@ -51,6 +50,7 @@ public class ClassFile {
         this.superClass = reader.readUInt16();
         this.interfaces = reader.readUInt16s();
         this.fields = readMembers(reader, this.constantPool);
+        // todo
         this.methods = readMembers(reader, this.constantPool);
         this.attributes = readAttributes(reader, this.constantPool);
     }
@@ -83,21 +83,11 @@ public class ClassFile {
     public void readAndCheckVersion(ClassReader reader) {
         this.minorVersion = reader.readUInt16();
         this.majorVersion = reader.readUInt16();
-        switch (this.majorVersion) {
-            case 45:
-                return;
-            case 46:
-            case 47:
-            case 48:
-            case 49:
-            case 50:
-            case 51:
-            case 52:
-                if (this.minorVersion == 0) {
-                    return;
-                }
+        // 支持 Java 1.1 到 Java 24 (major version 45-68)
+        if (this.majorVersion >= 45 && this.majorVersion <= 68) {
+            return;
         }
-        throw new RuntimeException("java.lang.UnsupportedClassVersionError!");
+        throw new RuntimeException("java.lang.UnsupportedClassVersionError! Major: " + this.majorVersion);
     }
     
     public int getMinorVersion() {
@@ -132,7 +122,7 @@ public class ClassFile {
         if (this.superClass > 0) {
             return this.constantPool.getClassName(this.superClass);
         }
-        // 只有java.lang.Object没有超类
+        // only java.lang.Object has no superclass
         return "";
     }
 
@@ -142,5 +132,18 @@ public class ClassFile {
             interfaceNames[i] = this.constantPool.getClassName(interfaces[i]);
         }
         return interfaceNames;
+    }
+
+    /**
+     * todo get SourceFileAttribute
+     * @return
+     */
+    public SourceFileAttribute getSourceFileAttribute() {
+        for (AttributeInfo attrInfo : this.attributes) {
+            if (attrInfo instanceof SourceFileAttribute){
+                return (SourceFileAttribute)attrInfo;
+            }
+        }
+        return null;
     }
 }

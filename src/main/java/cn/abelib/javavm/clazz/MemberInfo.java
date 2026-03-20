@@ -62,7 +62,7 @@ public class MemberInfo {
     }
 
     /**
-     * todo  CodeAttribute
+     * get CodeAttribute
      * @return
      */
     public CodeAttribute getCodeAttribute() {

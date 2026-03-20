@@ -1,6 +1,6 @@
 package cn.abelib.javavm.instructions.loads;
 
-import cn.abelib.javavm.instructions.base.Index8Instruction;
+import cn.abelib.javavm.instructions.base.NoOperandsInstruction;
 import cn.abelib.javavm.runtime.Frame;
 
 /**
@@ -8,7 +8,7 @@ import cn.abelib.javavm.runtime.Frame;
  * @version 1.0
  * @date 2023/4/3 22:36
  */
-public class DoubleLoad3 extends Index8Instruction implements DoubleLoadInstruction {
+public class DoubleLoad3 extends NoOperandsInstruction implements DoubleLoadInstruction {
 
     @Override
     public void execute(Frame frame) {

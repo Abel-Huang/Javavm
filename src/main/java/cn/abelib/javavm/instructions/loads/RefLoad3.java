@@ -1,6 +1,6 @@
 package cn.abelib.javavm.instructions.loads;
 
-import cn.abelib.javavm.instructions.base.Index8Instruction;
+import cn.abelib.javavm.instructions.base.NoOperandsInstruction;
 import cn.abelib.javavm.runtime.Frame;
 
 /**
@@ -8,7 +8,7 @@ import cn.abelib.javavm.runtime.Frame;
  * @version 1.0
  * @date 2023/4/8 19:38
  */
-public class RefLoad3 extends Index8Instruction implements RefLoadInstruction {
+public class RefLoad3 extends NoOperandsInstruction implements RefLoadInstruction {
 
     @Override
     public void execute(Frame frame) {

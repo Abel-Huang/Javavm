@@ -1,7 +1,6 @@
 package cn.abelib.javavm.clazz.constantinfo;
 
 import cn.abelib.javavm.clazz.ClassReader;
-import com.sun.org.apache.bcel.internal.classfile.ClassFormatException;
 import org.apache.commons.lang3.ArrayUtils;
 
 import static cn.abelib.javavm.clazz.Constant.*;
@@ -69,10 +68,16 @@ public class ConstantPool {
                 return new ConstantMethodTypeInfo(cp);
             case CONSTANT_MethodHandle:
                 return new ConstantMethodHandleInfo(cp);
+            case CONSTANT_Dynamic:
+                return new ConstantDynamicInfo();
             case CONSTANT_InvokeDynamic:
                 return new ConstantInvokeDynamicInfo();
+            case CONSTANT_Module:
+                return new ConstantModuleInfo(cp);
+            case CONSTANT_Package:
+                return new ConstantPackageInfo(cp);
             default:
-                throw new ClassFormatException("java.lang.ClassFormatError:constantpooltag!");
+                throw new RuntimeException("java.lang.ClassFormatError:constantpooltag! tag=" + tag);
         }
     }
 

@@ -2,7 +2,6 @@ package cn.abelib.javavm;
 
 import cn.abelib.javavm.clazz.ClassFile;
 import cn.abelib.javavm.clazz.MemberInfo;
-import cn.abelib.javavm.instructions.base.Interpreter;
 import cn.abelib.javavm.runtime.heap.Clazz;
 import cn.abelib.javavm.runtime.heap.Method;
 import cn.abelib.javavm.runtime.heap.ClassLoader;
@@ -34,11 +33,12 @@ public class Bootstrap {
         ClassLoader classLoader = new ClassLoader(classpath, cmd.isVerboseClassFlag());
         String className = cmd.getClazz().replace(".", "/");
         ClassFile cf = loadClass(className, classpath);
-        Clazz clazz = classLoader.loadClass(className);
+        Clazz mainClazz = classLoader.loadClass(className);
         printClassInfo(cf);
-        Method mainMethod = clazz.getMainMethod();
+        // class main method
+        Method mainMethod = mainClazz.getMainMethod();
         if(Objects.nonNull(mainMethod)) {
-            Interpreter.interpret(mainMethod, cmd.isVerboseInstFlag());
+            Interpreter.interpret(mainMethod, cmd.isVerboseInstFlag(), cmd.getArgs());
         } else {
             System.out.printf("Main method not found in class %s%n", cmd.getClazz());
         }
@@ -46,6 +46,9 @@ public class Bootstrap {
 
     private static ClassFile loadClass(String className , Classpath cp) throws IOException {
         byte[] data = cp.readClass(className);
+        if (data == null || data.length == 0) {
+            throw new IOException("Class not found: " + className + " (read " + (data == null ? 0 : data.length) + " bytes)");
+        }
         ClassFile classFile = new ClassFile();
         classFile.parse(data);
         return classFile;

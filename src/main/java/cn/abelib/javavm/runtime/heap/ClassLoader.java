@@ -19,9 +19,59 @@ public class ClassLoader {
     private boolean verboseClassFlag;
     private Map<String, Clazz> clazzMap;
 
+    /**
+     * 基础类型集合
+     */
+    private String[] primitiveTypes = {"void", "int", "float", "long", "short",
+            "char", "double", "byte", "boolean"};
+
     public ClassLoader(Classpath cp, boolean verboseClassFlag) {
         this.classpath = cp;
         this.clazzMap = Maps.newHashMap();
+        // todo 未使用
+        this.verboseClassFlag = verboseClassFlag;
+        this.loadBasicClasses();
+        this.loadPrimitiveClasses();
+    }
+
+    private void loadPrimitiveClasses() {
+        for (String primitiveType :  primitiveTypes) {
+            this.loadPrimitiveClass(primitiveType);
+        }
+    }
+
+    private void loadPrimitiveClass(String className) {
+        Clazz clazz = new Clazz();
+        clazz.setAccessFlags(AccessFlags.ACC_PUBLIC);
+        clazz.setName(className);
+        clazz.setClassLoader(this);
+        clazz.setInitStarted(true);
+
+        Clazz jlClassClass = clazzMap.get("java/lang/Class");
+        JvmObject jClass = jlClassClass.newObject();
+        jClass.setExtra(clazz);
+        clazz.setJClass(jClass);
+        this.clazzMap.put(className, clazz);
+    }
+
+    /**
+     * load class‘s class
+     */
+    private void loadBasicClasses() {
+        Clazz jlClassClass;
+        try {
+            jlClassClass = this.loadClass("java/lang/Class");
+        } catch (IOException e) {
+            throw new RuntimeException("IOException");
+        }
+
+        for (Clazz clazz : this.clazzMap.values()) {
+            if(clazz.getJClass() == null) {
+                JvmObject jClass = jlClassClass.newObject();
+                jClass.setExtra(clazz);
+                clazz.setJClass(jClass);
+            }
+        }
     }
 
     public Clazz loadClass(String name) throws IOException {
@@ -29,7 +79,78 @@ public class ClassLoader {
             // 类已经加载
             return clazzMap.get(name);
         }
-        return this.loadNonArrayClass(name);
+        
+        // 处理基本类型描述符 (V, Z, B, C, S, I, J, F, D)
+        String primitiveName = descriptorToPrimitiveName(name);
+        if (primitiveName != null && clazzMap.containsKey(primitiveName)) {
+            return clazzMap.get(primitiveName);
+        }
+        
+        Clazz clazz;
+        if (name.charAt(0) == '[') {
+            clazz = this.loadArrayClass(name);
+        } else {
+            clazz = this.loadNonArrayClass(name);
+        }
+        if (this.clazzMap.containsKey("java/lang/Class")) {
+            Clazz jlClassClass = clazzMap.get("java/lang/Class");
+            JvmObject jClass = jlClassClass.newObject();
+            jClass.setExtra(clazz);
+            clazz.setJClass(jClass);
+        }
+        return clazz;
+    }
+    
+    /**
+     * 将基本类型描述符转换为类型名称
+     * V -> void, Z -> boolean, etc.
+     */
+    private String descriptorToPrimitiveName(String descriptor) {
+        switch (descriptor) {
+            case "V": return "void";
+            case "Z": return "boolean";
+            case "B": return "byte";
+            case "C": return "char";
+            case "S": return "short";
+            case "I": return "int";
+            case "J": return "long";
+            case "F": return "float";
+            case "D": return "double";
+            default: return null;
+        }
+    }
+
+    /**
+     * load array class
+     * @param name
+     * @return
+     */
+    private Clazz loadArrayClass(String name) throws IOException {
+        Clazz clazz = new Clazz();
+        clazz.setAccessFlags(AccessFlags.ACC_PUBLIC);
+        clazz.setName(name);
+        clazz.setClassLoader(this);
+        Clazz superClass =  this.loadClass("java/lang/Object");
+        clazz.setSuperClass(superClass);
+        clazz.setSuperClassName(superClass.getName());
+        Clazz interfaceClass1 =  this.loadClass("java/lang/Cloneable");
+        Clazz interfaceClass2 =  this.loadClass("java/io/Serializable");
+        Clazz[] interfaces = new Clazz[]{interfaceClass1, interfaceClass2};
+        clazz.setInterfaces(interfaces);
+        String[] interfaceNames = new String[]{interfaceClass1.getName(), interfaceClass2.getName()};
+        clazz.setInterfaceNames(interfaceNames);
+        clazz.setInitStarted(true);
+        
+        // 为数组类设置 jClass
+        if (this.clazzMap.containsKey("java/lang/Class")) {
+            Clazz jlClassClass = clazzMap.get("java/lang/Class");
+            JvmObject jClass = jlClassClass.newObject();
+            jClass.setExtra(clazz);
+            clazz.setJClass(jClass);
+        }
+        
+        this.clazzMap.put(clazz.getName(), clazz);
+        return clazz;
     }
 
     /**
@@ -93,18 +214,31 @@ public class ClassLoader {
                 case "I":
                    int intVal = constantPool.getConstant(cpIndex).getIntValue();
                    vars.setInt(slotId, intVal);
+                   break;
                 case "J":
                     long longVal = constantPool.getConstant(cpIndex).getLongValue();
                     vars.setLong(slotId, longVal);
+                    break;
                 case "F":
                     float floatVal = constantPool.getConstant(cpIndex).getFloatValue();
                     vars.setFloat(slotId, floatVal);
+                    break;
                 case "D":
                     double doubleVal = constantPool.getConstant(cpIndex).getDoubleValue();
                     vars.setDouble(slotId, doubleVal);
+                    break;
                 case "Ljava/lang/String;":
-                    // todo
-                    throw new RuntimeException("todo");
+                    String strVal = constantPool.getConstant(cpIndex).getStringValue();
+                    // 加载 String 类并创建字符串对象
+                    try {
+                        Clazz stringClazz = this.loadClass("java/lang/String");
+                        JvmObject strObj = stringClazz.newObject();
+                        strObj.setStringValue(strVal);
+                        vars.setRef(slotId, strObj);
+                    } catch (IOException e) {
+                        throw new RuntimeException("Failed to load java/lang/String", e);
+                    }
+                    break;
             }
         }
     }

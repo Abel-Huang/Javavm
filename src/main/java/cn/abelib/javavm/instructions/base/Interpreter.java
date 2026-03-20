@@ -21,9 +21,8 @@ public class Interpreter {
             loop(thread, printLog);
         } catch (Exception e) {
             e.printStackTrace();
-            // todo System.out.printf
-            System.out.printf("LocalVars: %s", frame.getLocalVars());
-            System.out.printf("OperandStack: %s", frame.getOperandStack());
+            System.err.printf("LocalVars: %s%n", frame.getLocalVars());
+            System.err.printf("OperandStack: %s%n", frame.getOperandStack());
         }
     }
 

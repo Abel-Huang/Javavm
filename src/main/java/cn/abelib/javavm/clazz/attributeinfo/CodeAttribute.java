@@ -58,4 +58,17 @@ public class CodeAttribute implements AttributeInfo {
     public byte[] getCode() {
         return code;
     }
+
+    public ExceptionTableEntry[] getExceptionTable() {
+        return exceptionTable;
+    }
+
+    public LineNumberTableAttribute getLineNumberTableAttribute() {
+        for (AttributeInfo attrInfo : this.attributes) {
+            if (attrInfo instanceof LineNumberTableAttribute){
+                return (LineNumberTableAttribute)attrInfo;
+            }
+        }
+        return null;
+    }
 }

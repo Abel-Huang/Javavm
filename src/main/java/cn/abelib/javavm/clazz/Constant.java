@@ -21,5 +21,9 @@ public class Constant {
     public static final int CONSTANT_Utf8 = 1;
     public static final int CONSTANT_MethodHandle = 15;
     public static final int CONSTANT_MethodType = 16;
+    public static final int CONSTANT_Dynamic = 17;
     public static final int CONSTANT_InvokeDynamic = 18;
+    // Java 9+ 新增常量类型
+    public static final int CONSTANT_Module = 19;
+    public static final int CONSTANT_Package = 20;
 }

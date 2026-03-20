@@ -1,9 +1,11 @@
 package cn.abelib.javavm.runtime.heap;
 
+import cn.abelib.javavm.clazz.ExceptionHandler;
+import cn.abelib.javavm.clazz.ExceptionTable;
 import cn.abelib.javavm.clazz.MemberInfo;
 import cn.abelib.javavm.clazz.attributeinfo.CodeAttribute;
+import cn.abelib.javavm.clazz.attributeinfo.LineNumberTableAttribute;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.Objects;
 
@@ -17,25 +19,62 @@ public class Method extends ClassMember {
     private int maxLocals;
     private byte[] code;
     private int argSlotCount;
+    private MethodDescriptor parsedDescriptor;
+    private ExceptionTable exceptionTable;
+    private LineNumberTableAttribute lineNumberTable;
 
     public Method(Clazz clazz, MemberInfo memberInfo) {
+        this.setClazz(clazz);
         this.copyMemberInfo(memberInfo);
         this.copyAttributes(memberInfo);
-        this.setClazz(clazz);
         this.calcArgSlotCount();
+
+        if (this.isNative()) {
+            this.injectCodeAttribute(this.parsedDescriptor.getReturnType());
+        }
+    }
+
+    private void injectCodeAttribute(String returnType) {
+        this.maxStack = 4;
+        this.maxLocals = this.argSlotCount;
+        switch (returnType.charAt(0)) {
+            case 'V':
+                this.code = new byte[]{(byte) 0xfe, (byte) 0xb1};
+                break;
+            case 'D':
+                // dreturn
+                this.code = new byte[]{(byte) 0xfe, (byte) 0xaf};
+                break;
+            case 'F':
+                // freturn
+                this.code = new byte[]{(byte) 0xfe, (byte) 0xae};
+                break;
+            case 'J':
+                // lreturn
+                this.code = new byte[]{(byte) 0xfe, (byte) 0xad};
+                break;
+            case 'L':
+            case '[':
+                // areturn
+                this.code = new byte[]{(byte) 0xfe, (byte) 0xb0};
+                break;
+            default:
+                // ireturn
+                this.code = new byte[]{(byte) 0xfe, (byte) 0xac};
+                break;
+        }
     }
 
     private void calcArgSlotCount() {
-        MethodDescriptor parsedDescriptor = new MethodDescriptor() ;
+        this.parsedDescriptor = new MethodDescriptor() ;
         parsedDescriptor.parseMethodDescriptor(super.descriptor);
-        if (CollectionUtils.isEmpty(parsedDescriptor.getParameterTypes())) {
-            return;
-        }
-        for (String paramType : parsedDescriptor.getParameterTypes()) {
-            this.argSlotCount++;
-            if (paramType.equals(SymbolicReferences.LONG_SYMBOLIC)
-                    || paramType.equals(SymbolicReferences.DOUBLE_SYMBOLIC)) {
+        if (!CollectionUtils.isEmpty(parsedDescriptor.getParameterTypes())) {
+            for (String paramType : parsedDescriptor.getParameterTypes()) {
                 this.argSlotCount++;
+                if (paramType.equals(SymbolicReferences.LONG_SYMBOLIC)
+                        || paramType.equals(SymbolicReferences.DOUBLE_SYMBOLIC)) {
+                    this.argSlotCount++;
+                }
             }
         }
         if (!this.isStatic()) {
@@ -50,7 +89,18 @@ public class Method extends ClassMember {
             this.maxStack = codeAttr.getMaxStack();
             this.maxLocals = codeAttr.getMaxLocals();
             this.code = codeAttr.getCode();
+            this.lineNumberTable = codeAttr.getLineNumberTableAttribute();
+            this.exceptionTable = new ExceptionTable(codeAttr.getExceptionTable(),
+                   this.getClazz().getConstantPool());
         }
+    }
+
+    public int findExceptionHandler(Clazz exClazz, int pc)  {
+        ExceptionHandler handler = this.exceptionTable.findExceptionHandler(exClazz, pc);
+        if (handler != null) {
+            return handler.getHandlerPc();
+        }
+        return -1;
     }
 
     public boolean isPublic() {
@@ -89,6 +139,9 @@ public class Method extends ClassMember {
         return 0 != (this.accessFlags & AccessFlags.ACC_VOLATILE);
     }
 
+    private boolean isNative() {
+        return 0 != (this.accessFlags & AccessFlags.ACC_NATIVE);
+    }
     public int getMaxStack() {
         return maxStack;
     }
@@ -107,5 +160,28 @@ public class Method extends ClassMember {
 
     public byte[] getCode() {
         return code;
+    }
+
+    @Override
+    public String toString() {
+        return "Method{" +
+                "name='" + name + '\'' +
+                ", descriptor='" + descriptor + '\'' +
+                '}';
+    }
+
+    /**
+     * get method line number
+     * @param pc
+     * @return
+     */
+    public int getLineNumber(int pc) {
+        if (this.isNative()) {
+            return -2;
+        }
+        if (Objects.isNull(this.lineNumberTable)) {
+            return -1;
+        }
+        return this.lineNumberTable.getLineNumber(pc);
     }
 }

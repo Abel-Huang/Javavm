@@ -32,7 +32,7 @@ public class MethodRef extends MemberRef{
             throw new RuntimeException("java.lang.IncompatibleClassChangeError");
         }
         Method method = lookupMethod(c, this.name, this.descriptor);
-        if (Objects.isNull(this.method)) {
+        if (Objects.isNull(method)) {
             throw new RuntimeException("java.lang.NoSuchMethodError");
         }
         if (!method.isAccessibleTo(d)) {
@@ -43,7 +43,7 @@ public class MethodRef extends MemberRef{
 
     private Method lookupMethod(Clazz c, String name, String descriptor) {
         Method method = lookupMethodInClass(c, name, descriptor);
-        if (Objects.isNull(this.method)) {
+        if (Objects.isNull(method)) {
             method = lookupMethodInInterfaces(c.getInterfaces(), name, descriptor);
         }
         return method;
@@ -51,7 +51,11 @@ public class MethodRef extends MemberRef{
 
     public Method lookupMethodInClass(Clazz c, String name, String descriptor) {
         for (Clazz clazz  = c; clazz != null; clazz = clazz.getSuperClass()) {
-            for(Method method : clazz.getMethods()) {
+            Method[] methods = clazz.getMethods();
+            if (methods == null) {
+                continue;  // 跳过没有方法的类（如数组类、基本类型类）
+            }
+            for(Method method : methods) {
                 if (method.name.equals(name) && method.descriptor.equals(descriptor)) {
                     return method;
                 }

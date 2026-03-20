@@ -23,9 +23,16 @@ public class SymRef {
     public void resolveClassRef() throws IOException {
         Clazz clazz = this.constantPool.getClazz();
         Clazz c = clazz.getClassLoader().loadClass(this.className);
+        if (c == null) {
+            throw new RuntimeException("java.lang.NoClassDefFoundError: " + this.className);
+        }
         if (!c.isAccessibleTo(clazz)){
-            throw  new RuntimeException("java.lang.IllegalAccessError");
+            throw new RuntimeException("java.lang.IllegalAccessError");
         }
         this.clazz = c;
+    }
+    
+    public String getClassName() {
+        return className;
     }
 }

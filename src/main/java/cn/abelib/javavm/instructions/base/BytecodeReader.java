@@ -1,5 +1,8 @@
 package cn.abelib.javavm.instructions.base;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+
 /**
  * @author abel.huang
  * @version 1.0
@@ -7,41 +10,59 @@ package cn.abelib.javavm.instructions.base;
  */
 public class BytecodeReader {
     private byte[] code;
+    private ByteBuffer byteBuffer;
     private int pc;
 
     public void reset(byte[] code, int pc) {
-        this.code = code;
+        byteBuffer = ByteBuffer.wrap(code);
+        // Java 字节码默认是大端
+        byteBuffer.order(ByteOrder.BIG_ENDIAN);
         this.pc = pc;
     }
 
     public int readUInt8() {
-        byte i = this.code[this.pc];
-        this.pc++;
-        return Byte.toUnsignedInt(i);
+        if (!byteBuffer.hasRemaining()) {
+            return -1;
+        }
+        byte b = byteBuffer.get(this.pc);
+        this.pc ++;
+        return Byte.toUnsignedInt(b);
     }
 
     public int readInt8() {
-        byte i = this.code[this.pc];
-        this.pc++;
-        return (int)i;
+        if (!byteBuffer.hasRemaining()) {
+            return -1;
+        }
+        int b = byteBuffer.get(this.pc);
+        this.pc ++;
+        return b;
     }
 
     public int readInt16() {
-        return readUInt16();
+        if (!byteBuffer.hasRemaining()) {
+            return -1;
+        }
+        short val = byteBuffer.getShort(this.pc);
+        this.pc += 2;
+        return val;
     }
 
     public int readUInt16() {
-        int v1 = this.readUInt8();
-        int v2 = this.readUInt8();
-        return (v1 << 8) | v2;
+        if (!byteBuffer.hasRemaining()) {
+            return -1;
+        }
+        short val = byteBuffer.getShort(this.pc);
+        this.pc += 2;
+        return Short.toUnsignedInt(val);
     }
 
     public int readInt32() {
-        int v1 = this.readUInt8();
-        int v2 = this.readUInt8();
-        int v3 = this.readUInt8();
-        int v4 = this.readUInt8();
-        return (v1 << 24) | (v2 << 16) | (v3 << 8) | v4;
+        if (!byteBuffer.hasRemaining()) {
+            return -1;
+        }
+        int i = byteBuffer.getInt(this.pc);
+        this.pc += 4;
+        return i;
     }
 
     public void skipPadding() {

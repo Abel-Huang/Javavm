@@ -26,7 +26,7 @@ public class InstanceOf extends Index16Instruction {
         Clazz currentClass = currentMethod.getClazz();
         RuntimeConstantPool cp = currentClass.getConstantPool();
         ClassRef classRef = cp.getConstant(this.index).getClassRef();
-        Clazz clazz = null;
+        Clazz clazz;
         try {
             clazz = classRef.resolvedClass();
         } catch (IOException e) {

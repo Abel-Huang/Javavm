@@ -36,7 +36,8 @@ public interface Entry {
             return wildcardEntry;
         }
         if (StringUtils.endsWith(path, "jar") || StringUtils.endsWith(path, "JAR")
-        || StringUtils.endsWith(path, "zip") || StringUtils.endsWith(path, "ZIP")) {
+        || StringUtils.endsWith(path, "zip") || StringUtils.endsWith(path, "ZIP")
+        || StringUtils.endsWith(path, "jmod") || StringUtils.endsWith(path, "JMOD")) {
             return new ZipEntry(path);
         }
         return new DirEntry(path);
